@@ -1,8 +1,8 @@
 # ⚡️ Static - The Pure Power of Simplicity.
 
-✅ Static is easy. 
-✅ HTML is easy. 
-⚠️ But, somewhere along the way we lost the simplicity of building Static HTML websites
+- ✅ Static is easy. 
+- ✅ HTML is easy. 
+- ⚠️ But, somewhere along the way we lost the simplicity of building Static HTML websites
 
 > We've built a Static site gernator you're going to love 😍 
 
