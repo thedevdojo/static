@@ -8,7 +8,7 @@ A static site gernator you're going to love. No more complicated configurations,
 
 We're bringing the *power of simplicity* back into static site generators. Be warned! You may also have some fun along the way 🕺
 
-## 🖐️ Five reasons you might dig this shit, dawg!
+## 🖐️ Five compelling reasons this might just be your jam! (stack 😏)
 
 1. Design **layouts** that multiple pages can utilize
 
