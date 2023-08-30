@@ -10,7 +10,7 @@ We're bringing the *power of simplicity* back into static site generators. Be wa
 
 ## 🖐️ Five reasons you might dig this shit, dawg!
 
-### Create basic layouts to use across multiple pages
+1. Design **layouts** that multiple pages can utilize
 
 **layouts/main.html**
 
@@ -28,7 +28,7 @@ We're bringing the *power of simplicity* back into static site generators. Be wa
 </html>
 ```
 
-👆 You can use that layout in any page 👇
+Then, use it in any page.
 
 **pages/index.html**
 
