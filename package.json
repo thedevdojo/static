@@ -1,0 +1,46 @@
+{
+  "name": "@devdojo/static",
+  "version": "1.0.0",
+  "description": "Static Site Generator",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently --kill-others \"node index.js\" \"npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --watch\"",
+    "build": "node index.js --build && npx tailwindcss -i ./src/assets/css/main.css -o ./build/assets/css/main.css --minify && npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --minify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thedevdojo/static.git"
+  },
+  "keywords": [
+    "static",
+    "site",
+    "generator",
+    "static",
+    "site",
+    "generator"
+  ],
+  "dependencies": {
+    "alpinejs": "^3.12.3",
+    "concurrently": "^8.2.0",
+    "esbuild": "0.19.2",
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.12",
+    "puppeteer": "^21.0.3"
+  },
+  "devDependencies": {
+    "connect-livereload": "^0.6.1",
+    "livereload": "^0.9.3",
+    "nodemon": "^3.0.1",
+    "tailwindcss": "^3.3.3"
+  },
+  "author": "Tony Lea",
+  "license": "ISC",
+  "bin" : {
+	"static": "bin/static"
+  },
+  "bugs": {
+    "url": "https://github.com/thedevdojo/static/issues"
+  },
+  "homepage": "https://github.com/thedevdojo/static#readme"
+}

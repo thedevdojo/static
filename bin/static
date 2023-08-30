@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+var myArgs = process.argv.slice(2);
+var cmd = myArgs[0];
+var folderName = myArgs[1];
+
+if(cmd == 'new'){
+    console.log('create new project in folder: ' + folderName);
+}
+
+if(cmd == 'dev'){
+    var dev = require('../src/dev.js');
+    dev.start();
+}
+
+if(cmd == 'build'){
+    var build = require('../src/build.js');
+    build.start();
+}
