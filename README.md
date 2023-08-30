@@ -38,7 +38,7 @@ Then, use it in any page.
 
 #### 2. Re-usable HTML partials (**includes**)
 
-The `<include></include>` tags will be replaced with the contents of the HTML file referenced in the `src` attribute.
+The `<include>` tag can be used to include an HTML file referenced in the `src` attribute.
 
 ```
 <layout title="Behind the Scenes!" src="main.html">
