@@ -8,7 +8,7 @@ A static site gernator you're going to love. No more complicated configurations,
 
 We're bringing the *power of simplicity* back into static site generators. Be warned! You may also have some fun along the way 🕺
 
-# ⏳ 30-second Why
+# 🖐️ Five reasons you might dig this shit, dawg!
 
 ### Create basic layouts to use across multiple pages
 
@@ -28,7 +28,7 @@ We're bringing the *power of simplicity* back into static site generators. Be wa
 </html>
 ```
 
-👆 You can use that layouts in any page 👇
+👆 You can use that layout in any page 👇
 
 **pages/index.html**
 
