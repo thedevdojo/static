@@ -2,9 +2,9 @@
 
 A static site gernator you're going to love 😍 No more complicated configurations, bloated javascript frameworks, or feeling like you got kicked in the face by a horse!
 
-- ✅ Static is easy. 
-- ✅ HTML is easy. 
-- ⚠️ But, somewhere along the way we lost the simplicity of building Static HTML websites
+- Static is **easy**. 
+- HTML is **easy**. 
+- But, somewhere along the way we lost **the simplicity** of building Static HTML websites
 
 We're bringing the power of simplicity back into static site generators and, you'll probably also have some fun along the way 🕺
 
