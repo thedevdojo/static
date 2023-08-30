@@ -10,7 +10,7 @@ We're bringing the *power of simplicity* back into static site generators. Be wa
 
 ## 🖐️ Five compelling reasons this might just be your jam! (stack 😏)
 
-1. Design **layouts** that multiple pages can utilize
+#### 1. Design **layouts** that multiple pages can utilize
 
 **layouts/main.html**
 
@@ -40,7 +40,7 @@ Then, use it in any page.
 </layout>
 ```
 
-### Re-usable HTML partials (includes)
+#### 2. Re-usable HTML partials (**includes**)
 
 **pages/about.html**
 
