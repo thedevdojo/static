@@ -12,8 +12,6 @@ We're bringing the *power of simplicity* back into static site generators. Be wa
 
 #### 1. Design **layouts** that multiple pages can utilize
 
-**layouts/main.html**
-
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -30,8 +28,6 @@ We're bringing the *power of simplicity* back into static site generators. Be wa
 
 Then, use it in any page.
 
-**pages/index.html**
-
 ```
 <layout title="Radical Righteousness" src="main.html">
 
@@ -42,7 +38,7 @@ Then, use it in any page.
 
 #### 2. Re-usable HTML partials (**includes**)
 
-**pages/about.html**
+The `<include></include>` tags will be replaced with the contents of the HTML file referenced in the `src` attribute.
 
 ```
 <layout title="Behind the Scenes!" src="main.html">
@@ -52,8 +48,6 @@ Then, use it in any page.
 
 </layout>
 ```
-
-The `<include></include>` tags will be replaced with the contents of the HTML file referenced in the `src` attribute.
 
 ### TailwindCSS Shortcode Integration
 
