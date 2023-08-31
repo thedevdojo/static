@@ -12,7 +12,7 @@ A static site gernator you're going to love. No more complicated configurations,
 
 ### 1. Page-based Routing
 
-Adding a new route is as simple as adding a new file to the `pages` directory. Each file corresponds to a route on your website.
+Each file within the `pages` directory corresponds to a route on your website. With a structure like this:
 
 ```
 pages
@@ -32,8 +32,6 @@ http://localhost:3000/about
 http://localhost:3000/contact
 http://localhost:3000/contact/form
 ```
-
-Adding a new route is as straightforward as adding a new file or folder to the `pages` directory.
 
 ### 2. Layouts
 
@@ -64,7 +62,7 @@ Then, use it in any page.
 ```
 ### 3. Includes
 
-Creating re-usable HTML partials with the `<include>` tag. Specify the HTML file with the `src` attribute.
+Create re-usable HTML partials with the `<include>` tag. Specify the HTML file with the `src` attribute.
 
 ```
 <layout title="Behind the Scenes!" src="main.html">
@@ -94,7 +92,7 @@ Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will auto
 </html>
 ```
 
-The dev server will replace `{tailwindcss}` with the TailwindCSS CDN link. During build, only the classes you used in your project will be compiled into a minified CSS file that will be included in the `<head>` of each page.
+This will be replaced with the TailwindCSS CDN link in `dev` mode. A minified CSS file will be compiled during `build`.
 
 #### 5. Collections
 
