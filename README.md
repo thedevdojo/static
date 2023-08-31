@@ -96,9 +96,7 @@ It will be replaced with the Tailwind CDN link in `dev`, and a minified CSS file
 
 #### 5. Collections
 
-You'll also be able to add collections of data to your application.
-
-**collections/menu.json**
+You'll also be able to add collections of data to your application. Here's an example collection located at **collections/menu.json**
 
 ```
 [
