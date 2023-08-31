@@ -113,7 +113,7 @@ You'll also be able to add collections of data to your application.
 ]
 ```
 
-Now, you can loop through a collection in any page, layout, or include:
+Now, you can easily loop through this collection:
 
 ```
 <ForEach collection="menu">
