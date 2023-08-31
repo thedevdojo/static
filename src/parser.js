@@ -92,8 +92,6 @@ module.exports = {
     },
 
     processCollectionLoops(template) {
-
-        console.log(template);
     
         // Regular expression to capture the ForEach sections
         const loopRegex = /<ForEach collection="([^"]+)">([\s\S]*?)<\/ForEach>/g;
@@ -102,8 +100,6 @@ module.exports = {
         while ((match = loopRegex.exec(template)) !== null) {
             const collectionName = match[1];
             const loopBody = match[2];
-
-            console.log(loopRegex);
             
     
             // Load the corresponding JSON file

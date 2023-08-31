@@ -14,6 +14,8 @@ module.exports = {
         const buildDir = path.join(currentDirectory, './_site');
         fs.mkdirSync(buildDir, { recursive: true });
         buildPages(pagesDir, buildDir);
+
+        console.log('Successfully built your new static website 🤘');
     }
 }
 
