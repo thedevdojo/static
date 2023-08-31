@@ -18,7 +18,7 @@ Make sure you have Node installed on your machine, and then copy/paste the follo
 npm install -g @devdojo/static
 ```
 
-Now you'll have the CLI tool `static` available on your machine. Allowing you to run the following:
+Now you'll have the **static** command available on your machine, allowing you to run the following:
 
 - **static new folder-name** - Create a new website with the static starter template
 - **static dev** - Serve up a development version of your static website
