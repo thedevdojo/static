@@ -98,7 +98,7 @@ It will be replaced with the Tailwind CDN link in `dev`, and a minified CSS file
 
 You'll also be able to add collections of data to your application.
 
-***collections/menu.json**
+**collections/menu.json**
 
 ```
 [
