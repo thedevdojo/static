@@ -10,7 +10,6 @@ A static site generator you're going to love. No more complicated configurations
 
 No longer will this stand! **Static** reclaims the throne of simplicity in static site generators."
 
-**Static** brings the *power of simplicity* back into static site generators.
 ## 🛠️ Setup in a Snap
 
 Make sure you have Node installed on your machine, and then copy/paste the following command in your terminal:
