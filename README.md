@@ -21,7 +21,7 @@ npm install -g @devdojo/static
 Now you'll have the **static** command available on your machine, allowing you to run the following:
 
 - **static new folder-name** - Create a new website with the static starter template
-- **static dev** - Serve up a development version of your static website
+- **static dev** - Start up a dev environment of your static website
 - **static build** - Build a production ready version of your website (available in the `_site` directory)
 
 Next, head on over to the official documentation to learn more about building your site.
