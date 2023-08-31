@@ -119,9 +119,7 @@ Now, you can easily loop through this collection:
 </ForEach>
 ```
 
----
-
-There's more functionality you can learn about in the docs.
+Those are some of the hottest features available, but there's so much more. You can learn more by visiting the documentation here.
 
 # How To Setup
 
