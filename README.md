@@ -25,7 +25,7 @@ Now you'll have the CLI tool `static` available on your machine. Allowing you to
 
 Next, head on over to the official documentation to learn more about building your site.
 
-## 🖐️ Five reasons this might just be your jam! (stack 😏)
+## 🖐️ Five reasons this might just be your jam!
 
 ### 1. Page-based Routing
 
