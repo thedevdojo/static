@@ -75,8 +75,6 @@ Creating re-usable HTML partials with the `<include>` tag. Specify the HTML file
 </layout>
 ```
 
-Includes allow you to embed common sections like headers, footers, or other repetitive elements across different pages.
-
 #### 4. TailwindCSS Integration
 
 Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will automatically be injected. Example:
@@ -96,13 +94,7 @@ Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will auto
 </html>
 ```
 
-The development server will replace `{tailwindcss}` with the TailwindCSS CDN link. During build, the Tailwind CLI is used to compile only the classes you used in your project to a minified file. The `<link>` tag containing this new CSS file will added to the `<head>` of each page.
-
-```
-<head>
-  <link rel="stylesheet" href="_site/assets/css/main.css">
-</head>
-```
+The dev server will replace `{tailwindcss}` with the TailwindCSS CDN link. During build, only the classes you used in your project will be compiled into a minified CSS file that will be included in the `<head>` of each page.
 
 #### 5. Collections
 
