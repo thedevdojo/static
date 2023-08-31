@@ -8,7 +8,7 @@ A static site gernator you're going to love. No more complicated configurations,
 
 We're bringing the *power of simplicity* back into static site generators. Be warned! You may also have some fun along the way 🕺
 
-## 🖐️ Five compelling reasons this might just be your jam! (stack 😏)
+## Four compelling reasons this might just be your jam! (stack 😏)
 
 #### 1. Design **layouts** that multiple pages can utilize
 
@@ -49,7 +49,7 @@ The `<include>` tag can be used to include an HTML file referenced in the `src` 
 </layout>
 ```
 
-### TailwindCSS Shortcode Integration
+#### 3. TailwindCSS Shortcode Integration
 
 Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will automatically be injected. Example:
 
@@ -76,7 +76,7 @@ The development server will replace `{tailwindcss}` with the TailwindCSS CDN lin
 </head>
 ```
 
-### Collections
+#### 4. Collections
 
 You'll also be able to add collections of data to your application.
 
