@@ -162,7 +162,7 @@ Here is an example of how the page-based routing works:
 
 Running `static dev` inside of your project folder will serve up your website on `http://localhost:3000`. Running `static build` will compile a minified version of your website inside of the `_site` folder.
 
-Creating new pages is as easy as adding a new file or folder to the `pages` directory. If you add a file located at `pages/index.html` this will be the homepage of your application. There are two ways to create a route for the website, which include adding an `index.html` file to a folder, (for instance, adding a file located at `/pages/about/index.html` would serve up an `/about` page). You could also add this to the main `pages` directory like so `pages/about.html` and it would resolve to the `/about` page.
+Creating new pages is as easy as adding a new file or folder to the `pages` directory. If you add a file located at `pages/index.html` this will be the homepage of your application. There are two ways to create a route for the website, which include adding an `index.html` file to a folder, (for instance, adding a file located at `/pages/about/index.html` would serve up an `/about` page). You could also add this to the main `pages` directory like so `pages/about.html` and it would also resolve to the `/about` page.
 
 ## 📃 Layouts
 
