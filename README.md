@@ -68,7 +68,7 @@ Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will auto
 </html>
 ```
 
-The development server will replace the `{tailwindcss}` shortcode with the TailwindCSS CDN link. During build, we'll run the Tailwind CLI to compile only the classes you used in your project to a minified file `_site/assets/css/main.css`. The `<link>` tag containing this new CSS file will added to th `<head>`.
+The development server will replace `{tailwindcss}` with the TailwindCSS CDN link. During build, the Tailwind CLI is used to compile only the classes you used in your project to a minified file. The `<link>` tag containing this new CSS file will added to the `<head>` of each page.
 
 ```
 <head>
