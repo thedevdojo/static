@@ -12,7 +12,7 @@ A static site gernator you're going to love. No more complicated configurations,
 
 ### 1. Page-based Routing
 
-Each file within the pages directory corresponds to a route on your website. With a structure like this:
+Adding a new route is as simple as adding a new file to the `pages` directory. Each file corresponds to a route on your website.
 
 ```
 pages
