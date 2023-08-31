@@ -12,7 +12,7 @@ A static site gernator you're going to love. No more complicated configurations,
 
 ### 1. Page-based Routing
 
-Each file within the pages directory corresponds to a route on your website. Take a look at the following folder structure:
+Each file within the pages directory corresponds to a route on your website. With a structure like this:
 
 ```
 pages
@@ -24,7 +24,7 @@ pages
 │   │   ├── index.html
 ```
 
-With a structure like the one above, your new site will have the following routes available:
+Your new site will have the following routes available:
 
 ```
 http://localhost:3000
@@ -33,9 +33,7 @@ http://localhost:3000/contact
 http://localhost:3000/contact/form
 ```
 
-Page-based routing makes it super easy to edit and view the files responsible for each route. If you want to modify the content of the "About" page, for instance, you'd simply navigate to about.html within the pages directory. Similarly, to update the contact form, you'd go to the form subdirectory and edit its index.html.
-
-Moreover, adding a new route is as straightforward as adding a new file or folder to the pages directory. No complicated configurations or route definitions required! This approach streamlines web development, ensuring that the file structure intuitively mirrors the website's navigation. It's simplicity and organization rolled into one, making your web development process efficient and hassle-free.
+Adding a new route is as straightforward as adding a new file or folder to the `pages` directory.
 
 ### 2. Layouts
 
