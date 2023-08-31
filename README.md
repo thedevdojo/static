@@ -6,7 +6,7 @@ A static site generator you're going to love. No more complicated configurations
 
 - Static is **easy**. 
 - HTML is **easy**. 
-- But, somewhere along the way we lost **the simplicity** of building Static HTML websites
+- Yet, somehow we lost **the simplicity** of building Static HTML websites
 
 **Static** brings the *power of simplicity* back into static site generators.
 ## 🛠️ Setup in a Snap
