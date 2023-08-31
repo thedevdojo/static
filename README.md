@@ -64,9 +64,7 @@ Then, use it in any page.
 ```
 ### 3. Includes
 
-Creating re-usable HTML partials is simple with the `<include>` tag. This allows you to insert sections of HTML stored in separate files, making your codebase more organized and modular.
-
-Specify the HTML file you want to include with the `src` attribute.
+Creating re-usable HTML partials with the `<include>` tag. Specify the HTML file with the `src` attribute.
 
 ```
 <layout title="Behind the Scenes!" src="main.html">
@@ -77,7 +75,7 @@ Specify the HTML file you want to include with the `src` attribute.
 </layout>
 ```
 
-By utilizing these includes, you can easily embed common sections like headers, footers, or other repetitive elements across different pages.
+Includes allow you to embed common sections like headers, footers, or other repetitive elements across different pages.
 
 #### 4. TailwindCSS Integration
 
