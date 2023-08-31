@@ -92,7 +92,7 @@ Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will auto
 </html>
 ```
 
-This will be replaced with the TailwindCSS CDN link in `dev` mode. A minified CSS file will be compiled during `build`.
+It will be replaced with the Tailwind CDN link in `dev`, and a minified CSS file will be compiled during `build`.
 
 #### 5. Collections
 
