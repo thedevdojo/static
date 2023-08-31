@@ -2,6 +2,9 @@
 
 A static site gernator you're going to love. No more complicated configurations, bloated javascript frameworks, or feeling like you got kicked in the face by a horse!
 
+<p><img src="https://raw.githubusercontent.com/thedevdojo/static/main/art/github-cover.png" alt="github cover" /></p>
+
+
 - Static is **easy**. 
 - HTML is **easy**. 
 - But, somewhere along the way we lost **the simplicity** of building Static HTML websites
