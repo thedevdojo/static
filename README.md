@@ -2,7 +2,7 @@
 
 <p><img src="https://raw.githubusercontent.com/thedevdojo/static/main/art/github-static-cover.png" alt="github cover" /></p>
 
-A static site generator you're going to love. No more complicated configurations, bloated javascript frameworks, or feeling like you got kicked in the face by a horse! Here's the spiel:
+A static site generator you're going to love. No more complicated configs, bloated frameworks, or feeling like you got kicked in the face by a horse! Here's the spiel:
 
 - Static is **easy**. 
 - HTML is **easy**. 
