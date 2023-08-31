@@ -8,9 +8,38 @@ A static site gernator you're going to love. No more complicated configurations,
 
 We're bringing the *power of simplicity* back into static site generators. Be warned! You may also have some fun along the way 🕺
 
-## Four compelling reasons this might just be your jam! (stack 😏)
+## Five compelling reasons this might just be your jam! (stack 😏)
 
-#### 1. Design **layouts** that multiple pages can utilize
+### 1. Page-based Routing
+
+Each file within the pages directory corresponds to a route on your website. Take a look at the following folder structure:
+
+```
+pages
+├── index.html
+├── about.html
+├── contact
+│   ├── index.html
+│   ├── form
+│   │   ├── index.html
+```
+
+With a structure like the one above, your new site will have the following routes available:
+
+```
+http://localhost:3000
+http://localhost:3000/about
+http://localhost:3000/contact
+http://localhost:3000/contact/form
+```
+
+Page-based routing makes it super easy to edit and view the files responsible for each route. If you want to modify the content of the "About" page, for instance, you'd simply navigate to about.html within the pages directory. Similarly, to update the contact form, you'd go to the form subdirectory and edit its index.html.
+
+Moreover, adding a new route is as straightforward as adding a new file or folder to the pages directory. No complicated configurations or route definitions required! This approach streamlines web development, ensuring that the file structure intuitively mirrors the website's navigation. It's simplicity and organization rolled into one, making your web development process efficient and hassle-free.
+
+### 2. Layouts
+
+Design **layouts** that multiple pages can utilize.
 
 ```html
 <!DOCTYPE html>
@@ -35,10 +64,11 @@ Then, use it in any page.
     
 </layout>
 ```
+### 3. Includes
 
-#### 2. Re-usable HTML partials (**includes**)
+Creating re-usable HTML partials is simple with the `<include>` tag. This allows you to insert sections of HTML stored in separate files, making your codebase more organized and modular.
 
-The `<include>` tag can be used to include an HTML file referenced in the `src` attribute.
+Specify the HTML file you want to include with the `src` attribute.
 
 ```
 <layout title="Behind the Scenes!" src="main.html">
@@ -49,7 +79,9 @@ The `<include>` tag can be used to include an HTML file referenced in the `src` 
 </layout>
 ```
 
-#### 3. TailwindCSS Shortcode Integration
+By utilizing these includes, you can easily embed common sections like headers, footers, or other repetitive elements across different pages.
+
+#### 4. TailwindCSS Integration
 
 Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will automatically be injected. Example:
 
@@ -76,7 +108,7 @@ The development server will replace `{tailwindcss}` with the TailwindCSS CDN lin
 </head>
 ```
 
-#### 4. Collections
+#### 5. Collections
 
 You'll also be able to add collections of data to your application.
 
