@@ -90,7 +90,7 @@ Create re-usable HTML partials with the `<include>` tag. Specify the HTML file w
 </layout>
 ```
 
-#### 4. TailwindCSS Integration
+### 4. TailwindCSS Integration
 
 Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will automatically be injected. Example:
 
@@ -111,7 +111,7 @@ Add the TailwindCSS **shortcode** to the `<head>` of any layout and it will auto
 
 It will be replaced with the Tailwind CDN link in `dev`, and a minified CSS file will be compiled during `build`.
 
-#### 5. Collections
+### 5. Collections
 
 Add collections of data to your application. Here's an example collection located at **collections/menu.json**
 
@@ -138,23 +138,19 @@ Now, you can easily loop through this collection:
 
 > Those are some of the hottest features available, but there's so much more to uncover and learn. You can learn more by visiting the documentation here.
 
-# How To Setup
+## 🗂️ Structure
 
-```
-npm install -g @devdojo/static
-```
+In the root of your project there will be a handful of other folders:
 
-Now you'll have the CLI tool `static` installed on your machine which will allow you to run these commands:
+- pages
+- layouts
+- includes
+- assets
+- collections
 
-- **static new folder-name** - Create a new website with the static starter template
-- **static dev** - Serve up a development version of your static website
-- **static build** - Build a production ready version of your website (available in the `_site` directory)
+Let's cover each folder below.
 
-Now that you have the `static` cli command installed we can get started by creating your new static website.
-
-## Pages
-
-### using the static new folder-name command
+## 📄 Pages
 
 Static uses a simple page-based routing system where each route is mapped to a file inside of the `pages` directory. You can either get started by running the `static new folder-name` command, or you can get started by creating a new `pages` directory in an empty folder.
 
@@ -166,21 +162,9 @@ Here is an example of how the page-based routing works:
 
 Running `static dev` inside of your project folder will serve up your website on `http://localhost:3000`. Running `static build` will compile a minified version of your website inside of the `_site` folder.
 
+Creating new pages is as easy as adding a new file or folder to the `pages` directory. If you add a file located at `pages/index.html` this will be the homepage of your application. There are two ways to create a route for the website, which include adding an `index.html` file to a folder, (for instance, adding a file located at `/pages/about/index.html` would serve up an `/about` page). You could also add this to the main `pages` directory like so `pages/about.html` and it would resolve to the `/about` page.
 
-All the content for the website will live inside of the `/src` folder. Inside this folder you will find a few other folders:
-
-- pages
-- layouts
-- includes
-- assets
-
-# pages
-
-Creating new pages is as easy as adding a new file or folder to the `pages` directory. If you add a file located at `pages/index.html` this will be the homepage of your application.
-
-There are two ways to create a route for the website, which include adding an `index.html` file to a folder, (for instance, adding a file located at `/pages/about/index.html` would serve up an `/about` page). You could also add this to the main `pages` directory like so `pages/about.html` and it would resolve to the `/about` page.
-
-# layouts
+## 📃 Layouts
 
 The layouts directory contain all the HTML layouts that can be used for any of your pages. Any `.html` page file can inherit from a layout. Here is an example homepage `pages/index.html`:
 

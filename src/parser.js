@@ -21,6 +21,9 @@ module.exports = {
             let layoutPath = path.join(currentDirectory, '/layouts/', layoutAttributes.src);
             let layout = fs.readFileSync(layoutPath, 'utf8');
 
+            // parse any includes that are inside the layout template
+            layout = this.parseIncludeContent(layout);
+
             // replace {slot} with content inside of Layout
             layout = layout.replace('{slot}', this.parseIncludeContent(this.getPageContent(page)));
 
@@ -104,7 +107,7 @@ module.exports = {
             
     
             // Load the corresponding JSON file
-            const jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/content/collections/', `${collectionName}.json`), 'utf8'));
+            const jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/collections/', `${collectionName}.json`), 'utf8'));
     
             let loopResult = '';
     
