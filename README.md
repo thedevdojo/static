@@ -9,7 +9,7 @@ A static site generator you're going to love. No more complicated configurations
 - But, somewhere along the way we lost **the simplicity** of building Static HTML websites
 
 **Static** brings the *power of simplicity* back into static site generators.
-## Setup
+## 🛠️ Setup in a Snap
 
 Make sure you have Node installed on your machine, and then copy/paste the following command in your terminal:
 
@@ -23,9 +23,9 @@ Now you'll have the CLI tool `static` available on your machine. Allowing you to
 - **static dev** - Serve up a development version of your static website
 - **static build** - Build a production ready version of your website (available in the `_site` directory)
 
-Now that you have the `static` cli command installed we can get started by creating your new static website.
+Next, head on over to the official documentation to learn more about building your site.
 
-## Five reasons this might just be your jam! (stack 😏)
+## 🖐️ Five reasons this might just be your jam! (stack 😏)
 
 ### 1. Page-based Routing
 
