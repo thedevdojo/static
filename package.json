@@ -1,6 +1,6 @@
 {
   "name": "@devdojo/static",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Static Site Generator",
   "main": "index.js",
   "scripts": {
