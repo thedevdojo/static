@@ -1,4 +1,5 @@
 const { exec } = require("child_process");
+const fs = require('fs');
 
 module.exports = {
     buildJSFile(build = false){
@@ -15,13 +16,21 @@ module.exports = {
         });
     },
     moveImages(){
-        exec("cp -r assets/images _site/assets/images", (err, stdout, stderr) => {
-            if (err) {
-            console.error("Error compling main.js:");
-            console.error(err);
+
+        let imagesFolder = 'assets/images'
+        try {
+            if (fs.existsSync(imagesFolder)) {
+                exec("cp -r assets/images _site/assets/images", (err, stdout, stderr) => {
+                    if (err) {
+                    console.error("Error compling main.js:");
+                    console.error(err);
+                    }
+                    console.log(stdout);
+                });
             }
-            console.log(stdout);
-        });
+        } catch (err) {
+            console.error(err);
+        }
     },
     buildTailwindCSS(){
         exec("npx tailwindcss -i ./assets/css/main.css -o ./_site/assets/css/main.css --minify", (err, stdout, stderr) => {
