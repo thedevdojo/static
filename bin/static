@@ -5,7 +5,8 @@ var cmd = myArgs[0];
 var folderName = myArgs[1];
 
 if(cmd == 'new'){
-    console.log('create new project in folder: ' + folderName);
+    var newCmd = require('../src/new.js');
+    newCmd.newProject(folderName);
 }
 
 if(cmd == 'dev'){

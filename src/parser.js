@@ -110,6 +110,9 @@ module.exports = {
             for (const item of jsonData) {
                 let processedBody = loopBody;
                 
+                // Process conditions
+                processedBody = this.processConditions(processedBody, item, collectionName);
+
                 for (const key in item) {
                     // Regular expression to replace the placeholders
                     const placeholderRegex = new RegExp(`{${collectionName}.${key}}`, 'g');
@@ -123,6 +126,40 @@ module.exports = {
         }
     
         return template;
+    },
+
+    processConditions(content, data, parentCollection) {
+        // Regular expression to capture the If sections
+        const conditionRegex = /<If condition="([^"]+)">([\s\S]*?)<\/If>/g;
+    
+        return content.replace(conditionRegex, (match, condition, body) => {
+            // Convert placeholder {collectionName.key} into JavaScript context variables
+            condition = condition.replace(/{([^}]+)\.([^}]+)}/g, (m, collection, key) => {
+                if (collection === parentCollection && typeof data[key] === 'string') {
+                    return JSON.stringify(data[key]); // Ensure strings are properly escaped
+                } else if (collection === parentCollection) {
+                    return data[key];
+                }
+                return m; // If the collection doesn't match, don't replace.
+            });
+    
+            let meetsCondition = false;
+    
+            // Prepare the evaluation context
+            let evalContextNames = [parentCollection, ...Object.keys(data)];
+            let evalContextValues = [{ ...data }, ...Object.values(data)];
+    
+            // Dynamically create a function with the condition and evaluate it
+            try {
+                const evalFunction = new Function(...evalContextNames, `return ${condition};`);
+                meetsCondition = evalFunction(...evalContextValues);
+            } catch (err) {
+                console.warn(`Failed to evaluate condition: ${condition}`, err);
+            }
+    
+            return meetsCondition ? body : '';
+        });
     }
+    
         
 }
