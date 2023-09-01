@@ -20,7 +20,8 @@ module.exports = {
         let imagesFolder = 'assets/images'
         try {
             if (fs.existsSync(imagesFolder)) {
-                exec("cp -r assets/images _site/assets/images", (err, stdout, stderr) => {
+                
+                exec("cp -r assets/images _site/assets/", (err, stdout, stderr) => {
                     if (err) {
                     console.error("Error compling main.js:");
                     console.error(err);
