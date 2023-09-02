@@ -5,6 +5,8 @@ const vikingNewFolder = globalModulesPath.getPath("viking") + '/src/site/';
 const process = require('process');
 const admZip = require('adm-zip');
 var mv = require('mv');
+const { exec } = require("child_process");
+const openurl = require('openurl');
 
 const href = `https://github.com/thedevdojo/static-starter/archive`;
 const zipFile = 'master.zip';
@@ -46,10 +48,30 @@ module.exports = {
                     console.log('Created new static site inside of the ' + folderName + ' folder');
                 });
 
-                //var serve = require(require("global-modules-path").getPath("viking") + '/src/cli/serve.js');
-
+                // let execString = "cd " + String(process.cwd()) + " && npx @devdojo/static dev";
                 
 
+                // exec(execString, (err, stdout, stderr) => {
+                //     if (err) {
+                //         console.error("Error booting up dev server inside new folder");
+                //         console.error(err);
+                //     }
+                //     console.log(stdout);
+                // });
+                // console.log(process.cwd());
+
+                // console.log('path');
+                // console.log(require("global-modules-path").getPath("@devdojo/static"));
+
+                
+                let devServer = require(require("global-modules-path").getPath("@devdojo/static") + '/src/dev.js');
+                
+                let devServerPort = devServer.start();
+                devServerPort.then((port) => {
+                    openurl.open('http://localhost:' + port);
+                });
+                //
+                
                 // serve.launch();
 
             });

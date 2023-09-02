@@ -19,7 +19,7 @@ module.exports = {
         assets.buildJSFile();
         assets.moveImages();
 
-        this.getAvailablePort(port).then((availablePort) => {
+        return this.getAvailablePort(port).then((availablePort) => {
 
             // get available port for the Live Reload Server
             this.getAvailablePort(liveReloadDefaultPort).then((liveReloadAvailablePort) => {
@@ -59,10 +59,14 @@ module.exports = {
                     console.log(`Server running at http://localhost:${availablePort}`);
                 });
 
+                
+
             }).catch((error) => {
                 console.log('error finding available port for liveReload');
                 console.log(error);
             });
+
+            return availablePort;
             
         }).catch((error) => {
             console.log('error finding available port number');

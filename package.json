@@ -30,6 +30,8 @@
     "global-modules-path": "^3.0.0",
     "livereload": "^0.9.3",
     "mv": "^2.1.1",
+    "open": "^9.1.0",
+    "openurl": "^1.1.1",
     "process": "^0.11.10",
     "superagent": "^8.1.2"
   },
