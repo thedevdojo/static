@@ -4,6 +4,7 @@ const globalModulesPath = require("global-modules-path");
 const vikingNewFolder = globalModulesPath.getPath("viking") + '/src/site/';
 const process = require('process');
 const admZip = require('adm-zip');
+var mv = require('mv');
 
 const href = `https://github.com/thedevdojo/static-starter/archive`;
 const zipFile = 'master.zip';
@@ -21,7 +22,6 @@ module.exports = {
           });
     },
     newProject(folderName) {
-        console.log('Welcome Viking!');
         console.log('Generating your new site inside ' + folderName + ' folder.');
         fs.mkdirSync('./' + folderName , { recursive: true });
         // fs.copySync(vikingNewFolder, './' + folderName);
@@ -38,14 +38,17 @@ module.exports = {
                 console.log('Finished Downloading Template');
                 var zip = new admZip(zipFile);
                 console.log('Extracting Template Zip File');
-                zip.extractEntryTo(`static-starter-main/`, process.cwd(), false, true);
+                zip.extractAllTo(process.cwd());
                 console.log('Finished Unzipping');
-
                 fs.unlinkSync(`./${zipFile}`);
+
+                mv(process.cwd() + '/static-starter-main', process.cwd(), {mkdirp: false, clobber: false}, function(err) {
+                    console.log('Created new static site inside of the ' + folderName + ' folder');
+                });
 
                 //var serve = require(require("global-modules-path").getPath("viking") + '/src/cli/serve.js');
 
-                console.log('Created new statis site inside of the ' + folderName + ' folder');
+                
 
                 // serve.launch();
 
