@@ -20,7 +20,7 @@ module.exports = {
         let imagesFolder = 'assets/images'
         try {
             if (fs.existsSync(imagesFolder)) {
-                
+                this.createFolderIfNotExists("_site/assets/");
                 exec("cp -r assets/images _site/assets/", (err, stdout, stderr) => {
                     if (err) {
                     console.error("Error compling main.js:");
@@ -31,6 +31,14 @@ module.exports = {
             }
         } catch (err) {
             console.error(err);
+        }
+    },
+    createFolderIfNotExists(folderPath) {
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, { recursive: true });
+            console.log(`Folder created: ${folderPath}`);
+        } else {
+            console.log(`Folder already exists: ${folderPath}`);
         }
     },
     buildTailwindCSS(){
