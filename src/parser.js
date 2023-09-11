@@ -99,7 +99,9 @@ module.exports = {
 
     parseShortCodes(content, url){
         // {tailwindcss} shortcode
-        const tailwindReplacement = isBuild ? '<link href="' + url.replace(/\/$/, '') + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
+        let assetURL = url.replace(/\/$/, '');
+        if(url == 'relative'){ assetURL = ''; }
+        const tailwindReplacement = isBuild ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
         content = content.replace('{tailwindcss}', tailwindReplacement);
         
         return content;
