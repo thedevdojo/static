@@ -11,6 +11,7 @@ const currentDirectory = process.cwd();
 const parser = require('./parser.js');
 const assets = require('./assets.js');
 const liveReloadDefaultPort = 35729;
+const env = require('./env.js');
 
 const esbuild = require('esbuild');
 
@@ -24,7 +25,6 @@ module.exports = {
             // get available port for the Live Reload Server
             this.getAvailablePort(liveReloadDefaultPort).then((liveReloadAvailablePort) => {
                 
-            
                 const liveReloadServer = livereload.createServer({
                     port: liveReloadAvailablePort
                 });

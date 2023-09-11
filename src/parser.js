@@ -2,11 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const currentDirectory = process.cwd();
 let isBuild = false;
+let url = 'relative';
 
 module.exports = {
-    processFile(filePath, build=false) {
+    processFile(filePath, build=false, url='relative') {
         isBuild = build;
-
+        url = url;
         let page = fs.readFileSync(filePath, 'utf8');
 
         const layoutTagExists = /<layout[^>]*>[\s\S]*?<\/layout>/.test(page);
@@ -27,10 +28,23 @@ module.exports = {
             // replace {slot} with content inside of Layout
             layout = layout.replace('{slot}', this.parseIncludeContent(this.getPageContent(page)));
 
-            page = this.processCollectionLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes)));
+            page = this.processCollectionLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url));
+
+            page = this.parseURLs(page, url);
         }
 
         return page;
+    },
+
+    parseURLs(html, URL) {
+        const regex = /{ url\('([^']+)'\) }/g;
+        return html.replace(regex, (match, url) => {
+            if (URL === 'relative') {
+            return url;
+            } else {
+            return URL.replace(/\/$/, '') + url;
+            }
+        });
     },
 
     getLayoutAttributes(page) {
@@ -83,9 +97,9 @@ module.exports = {
         return slotContent;
     },
 
-    parseShortCodes(content){
+    parseShortCodes(content, url){
         // {tailwindcss} shortcode
-        const tailwindReplacement = isBuild ? '<link href="/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
+        const tailwindReplacement = isBuild ? '<link href="' + url.replace(/\/$/, '') + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
         content = content.replace('{tailwindcss}', tailwindReplacement);
         
         return content;

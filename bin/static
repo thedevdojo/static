@@ -2,11 +2,11 @@
 
 var myArgs = process.argv.slice(2);
 var cmd = myArgs[0];
-var folderName = myArgs[1];
+var arg1 = myArgs[1];
 
 if(cmd == 'new'){
     var newCmd = require('../src/new.js');
-    newCmd.newProject(folderName);
+    newCmd.newProject(arg1);
 }
 
 if(cmd == 'dev'){
@@ -15,6 +15,10 @@ if(cmd == 'dev'){
 }
 
 if(cmd == 'build'){
+    let url = 'relative';
+    if(arg1 != 'undefined'){
+        url = arg1;
+    }
     var build = require('../src/build.js');
-    build.start();
+    build.start(url);
 }

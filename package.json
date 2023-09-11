@@ -24,6 +24,7 @@
     "adm-zip": "^0.5.10",
     "concurrently": "^8.2.0",
     "connect-livereload": "^0.6.1",
+    "dotenv": "^16.3.1",
     "esbuild": "0.19.2",
     "express": "^4.18.2",
     "fs-extra": "^11.1.1",
