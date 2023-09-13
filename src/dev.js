@@ -39,20 +39,10 @@ module.exports = {
                 app.use(connectLiveReload());
 
                 app.use('/assets', express.static(path.join(currentDirectory, '_site/assets')))
+                app.use('/', express.static(path.join(currentDirectory, 'public/')))
                 
                 app.get('/*', (req, res) => {
-                    const route = req.path === '/' ? '/index' : req.path;
-                    let pagePath = path.join(currentDirectory, './pages', route + '.html');
-                    if (!fs.existsSync(pagePath)) {
-                        pagePath = path.join(currentDirectory, './pages', route, 'index.html');
-                        if (!fs.existsSync(pagePath)) {
-                            res.status(404).send('Page not found');
-                            return;
-                        }
-                    }
-        
-                    const content = parser.processFile(pagePath);
-                    res.send(content);
+                    return this.handleRequest(req, res);
                 });
 
                 app.listen(availablePort, () => {
@@ -73,6 +63,46 @@ module.exports = {
             console.log(error);
         });
         
+    },
+    handleRequest(req, res){
+        const route = req.path === '/' ? '/index' : req.path;
+
+        // First we are going to check if we have a content file in this location
+        let contentPath = path.join(currentDirectory, './content', route + '.md');
+        let contentPathIndex = path.join(currentDirectory, './content', route + '/index.md');
+        let contentFile = null;
+
+        if (fs.existsSync(contentPath)) {
+            contentFile = parser.processContent(contentPath);
+        } else if(fs.existsSync(contentPathIndex)) {
+            contentFile = parser.processContent(contentPathIndex);
+        }
+
+        if (contentFile != null) {
+            return res.send(contentFile);
+        }
+
+        // If we made it this far we want to now check if the static html file exists
+
+        let pagePath = path.join(currentDirectory, './pages', route + '.html');
+        let pagePathIndex = path.join(currentDirectory, './pages', route, '/index.html');
+        let pageContent = null;
+
+        if (fs.existsSync(pagePath)) {
+            pageContent = parser.processFile(pagePath);
+        } else if(fs.existsSync(pagePathIndex)) {
+            pageContent = parser.processFile(pagePathIndex);
+        }
+
+        if (pageContent != null) {
+            return res.send(pageContent);
+        }
+
+        // otherwise we need to return the Page Not found error
+
+        res.status(404).send('Page not found');
+        return;
+
     },
     getAvailablePort(port) {
         

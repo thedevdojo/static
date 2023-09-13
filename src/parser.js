@@ -1,15 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const currentDirectory = process.cwd();
-let isBuild = false;
-let url = 'relative';
+let showdown  = require('showdown'),
+    converter = new showdown.Converter();
+let fm = require('front-matter');
 
 module.exports = {
     processFile(filePath, build=false, url='relative') {
-        isBuild = build;
-        url = url;
-        let page = fs.readFileSync(filePath, 'utf8');
 
+        let page = this.getPage(filePath);
+    
         const layoutTagExists = /<layout[^>]*>[\s\S]*?<\/layout>/.test(page);
 
         if (layoutTagExists) {
@@ -28,7 +28,7 @@ module.exports = {
             // replace {slot} with content inside of Layout
             layout = layout.replace('{slot}', this.parseIncludeContent(this.getPageContent(page)));
 
-            page = this.processCollectionLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url));
+            page = this.processCollectionLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build));
 
             page = this.parseURLs(page, url);
         }
@@ -36,6 +36,52 @@ module.exports = {
         return page;
     },
 
+    processContent(contentPath, build=false, url='relative') {
+
+        let content = fs.readFileSync(contentPath, 'utf8');
+
+        let pagePath = this.getPageForContent(contentPath);
+        let page = this.processFile(pagePath, build, url);
+
+        let contentHTML = converter.makeHtml(this.removeFrontMatter(content));
+        let contentAttributes = fm(content).attributes;
+
+        page = page.replace('{content}', contentHTML);
+
+        return page;
+
+    },
+    // Here we want to get the page that we want to use to render the content
+    getPageForContent(filePath) {
+        return path.join(currentDirectory, '/pages/docs/index.html');
+    },
+    getPage(filePath) {
+        page = fs.readFileSync(filePath, 'utf8');
+
+        const pageTagRegex = /<page\s+src="([^"]+)"><\/page>/;
+        const match = page.match(pageTagRegex);
+
+        if (match) {
+          const src = match[1];
+          const filePath = path.join(currentDirectory, './pages/', src);
+          const fileContent = fs.readFileSync(filePath, 'utf8');
+          page = fileContent;
+        }
+      
+        return page;
+    },
+    removeFrontMatter(markdownContent) {
+        const frontMatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/;
+        const match = markdownContent.match(frontMatterRegex);
+      
+        if (match) {
+          const frontMatter = match[0];
+          const content = markdownContent.replace(frontMatter, '');
+          return content.trim();
+        }
+      
+        return markdownContent.trim();
+    },
     parseURLs(html, URL) {
         const regex = /{ url\('([^']+)'\) }/g;
         return html.replace(regex, (match, url) => {
@@ -97,11 +143,11 @@ module.exports = {
         return slotContent;
     },
 
-    parseShortCodes(content, url){
+    parseShortCodes(content, url, build=false){
         // {tailwindcss} shortcode
         let assetURL = url.replace(/\/$/, '');
         if(url == 'relative'){ assetURL = ''; }
-        const tailwindReplacement = isBuild ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
+        const tailwindReplacement = build ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
         content = content.replace('{tailwindcss}', tailwindReplacement);
         
         return content;
