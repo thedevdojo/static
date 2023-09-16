@@ -4,6 +4,12 @@ var myArgs = process.argv.slice(2);
 var cmd = myArgs[0];
 var arg1 = myArgs[1];
 
+
+if(cmd == '--version'){
+    var info = require('../src/info.js');
+    info.version();
+}
+
 if(cmd == 'new'){
     var newCmd = require('../src/new.js');
     newCmd.newProject(arg1);

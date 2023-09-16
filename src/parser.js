@@ -46,11 +46,36 @@ module.exports = {
         let contentHTML = converter.makeHtml(this.removeFrontMatter(content));
         let contentAttributes = fm(content).attributes;
 
-        page = page.replace('{content}', contentHTML);
+        let attrTags = "<script>window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes) + "');</script>";
+        
+        // process frontmatter conditions
+        page = this.processFrontMatterConditions(page, contentAttributes);
+
+        page = page.replace('{content}', contentHTML + attrTags);
 
         return page;
 
     },
+
+    processFrontMatterConditions(content, data) {
+        const conditionRegex = /<If condition="([^"]+)">([\s\S]*?)<\/If>/g;
+    
+        return content.replace(conditionRegex, (match, condition, body) => {
+            // Evaluate the condition using the frontmatter data
+            const evalContext = { frontmatter: data };
+            let meetsCondition = false;
+    
+            try {
+                const evalFunction = new Function('data', `with(data) { console.log(data); return ${condition}; }`);
+                meetsCondition = evalFunction(evalContext);
+            } catch (err) {
+                console.warn(`Failed to evaluate condition: ${condition}`, err);
+            }
+    
+            return meetsCondition ? body : '';
+        });
+    },
+
     // Here we want to get the page that we want to use to render the content
     getPageForContent(filePath) {
         return path.join(currentDirectory, '/pages/docs/index.html');

@@ -1,5 +1,8 @@
 const { exec } = require("child_process");
 const fs = require('fs');
+const currentDirectory = process.cwd();
+const path = require('path');
+const fsExtra = require('fs-extra');
 
 module.exports = {
     buildJSFile(build = false){
@@ -21,24 +24,26 @@ module.exports = {
         try {
             if (fs.existsSync(imagesFolder)) {
                 this.createFolderIfNotExists("_site/assets/");
-                exec("cp -r assets/images _site/assets/", (err, stdout, stderr) => {
-                    if (err) {
-                    console.error("Error compling main.js:");
-                    console.error(err);
-                    }
-                    console.log(stdout);
-                });
+                this.createFolderIfNotExists("_site/assets/images");
+
+                let src=path.join(currentDirectory, '/assets/images'); 
+                let dest=path.join(currentDirectory, '/_site/assets/images'); 
+                this.copyDirSync(src, dest);
             }
         } catch (err) {
             console.error(err);
         }
     },
+    copyDirSync(src, dest) {
+        try {
+            fsExtra.copySync(src, dest);
+        } catch (err) {
+            console.error(`An error occurred: ${err}`);
+        }
+    },
     createFolderIfNotExists(folderPath) {
         if (!fs.existsSync(folderPath)) {
             fs.mkdirSync(folderPath, { recursive: true });
-            console.log(`Folder created: ${folderPath}`);
-        } else {
-            console.log(`Folder already exists: ${folderPath}`);
         }
     },
     buildTailwindCSS(){

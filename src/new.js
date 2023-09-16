@@ -1,7 +1,6 @@
 const fs = require('fs-extra');
 const request = require('superagent');
 const globalModulesPath = require("global-modules-path");
-const vikingNewFolder = globalModulesPath.getPath("viking") + '/src/site/';
 const process = require('process');
 const admZip = require('adm-zip');
 var mv = require('mv');
@@ -26,7 +25,6 @@ module.exports = {
     newProject(folderName) {
         console.log('Generating your new site inside ' + folderName + ' folder.');
         fs.mkdirSync('./' + folderName , { recursive: true });
-        // fs.copySync(vikingNewFolder, './' + folderName);
 
         process.chdir(process.cwd() + '/' + folderName);
         console.log('Downloading static starter template for your site');
