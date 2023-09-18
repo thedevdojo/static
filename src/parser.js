@@ -41,20 +41,33 @@ module.exports = {
         let content = fs.readFileSync(contentPath, 'utf8');
 
         let pagePath = this.getPageForContent(contentPath);
+        console.log('page Path: ' + pagePath);
         let page = this.processFile(pagePath, build, url);
 
         let contentHTML = converter.makeHtml(this.removeFrontMatter(content));
         let contentAttributes = fm(content).attributes;
 
-        let attrTags = "<script>window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes) + "');</script>";
+        let attrTags = "<script>document.addEventListener('DOMContentLoaded', (event) => { window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes) + "'); });</script>";
         
         // process frontmatter conditions
         page = this.processFrontMatterConditions(page, contentAttributes);
+        page = this.processFrontMatterReplacements(page, contentAttributes);
 
         page = page.replace('{content}', contentHTML + attrTags);
 
         return page;
 
+    },
+
+    processFrontMatterReplacements(content, data) {
+        const placeholderRegex = /{frontmatter\.([^}]+)}/g;
+        
+        return content.replace(placeholderRegex, (match, key) => {
+            if (data.hasOwnProperty(key)) {
+            return data[key];
+            }
+            return match; // If the key doesn't exist in data, don't replace.
+        });
     },
 
     processFrontMatterConditions(content, data) {
@@ -66,7 +79,7 @@ module.exports = {
             let meetsCondition = false;
     
             try {
-                const evalFunction = new Function('data', `with(data) { console.log(data); return ${condition}; }`);
+                const evalFunction = new Function('data', `with(data) { return ${condition}; }`);
                 meetsCondition = evalFunction(evalContext);
             } catch (err) {
                 console.warn(`Failed to evaluate condition: ${condition}`, err);
@@ -76,9 +89,42 @@ module.exports = {
         });
     },
 
-    // Here we want to get the page that we want to use to render the content
-    getPageForContent(filePath) {
-        return path.join(currentDirectory, '/pages/docs/index.html');
+    // Parse down the directory tree until we find a `.html` file for this content
+    getPageForContent(markdownFilePath) {
+        const markdownDir = path.dirname(markdownFilePath);
+        const markdownFileName = path.basename(markdownFilePath, '.md');
+        const htmlFilePath = path.join(markdownDir, `${markdownFileName}.html`);
+        const pageHTMLFilePath = htmlFilePath.replace(path.join(currentDirectory, '/content'), path.join(currentDirectory, '/pages'));
+
+        console.log('checking for: ' + pageHTMLFilePath);
+        if (fs.existsSync(pageHTMLFilePath)) {
+            return pageHTMLFilePath;
+        }
+
+        let currentDir = markdownDir.replace(path.join(currentDirectory, '/content'), path.join(currentDirectory, '/pages'));
+        let htmlFileName = `${markdownFileName}.html`;
+        let inc = 0;
+        while (currentDir !== '' && inc < 10) {
+            const parentDir = path.dirname(currentDir);
+            htmlFileName = path.basename(currentDir) + '.html';
+            const parentHtmlFilePath = path.join(parentDir, htmlFileName);
+            const indexHtmlFilePath = path.join(currentDir, 'index.html');
+
+            console.log('checking for: ' + indexHtmlFilePath);
+            if (fs.existsSync(indexHtmlFilePath)) {
+            return indexHtmlFilePath;
+            }
+
+            console.log('checking for: ' + parentHtmlFilePath);
+            if (fs.existsSync(parentHtmlFilePath)) {
+            return parentHtmlFilePath;
+            }
+
+            inc++;
+            currentDir = parentDir;
+        }
+
+        return null;
     },
     getPage(filePath) {
         page = fs.readFileSync(filePath, 'utf8');
@@ -171,11 +217,24 @@ module.exports = {
     parseShortCodes(content, url, build=false){
         // {tailwindcss} shortcode
         let assetURL = url.replace(/\/$/, '');
-        if(url == 'relative'){ assetURL = ''; }
-        const tailwindReplacement = build ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
+        if(url == 'relative'){ 
+            assetURL = ''; 
+        }
+        let tailwindReplacement = build ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
+        if(!build){
+            const moduleExportsContent = this.getModuleExportsContent();
+            tailwindReplacement += '<script>tailwind.config = ' + moduleExportsContent.replace(/;*$/, '') + '</script>';
+        }
         content = content.replace('{tailwindcss}', tailwindReplacement);
         
         return content;
+    },
+    getModuleExportsContent() {
+        const filePath = './tailwind.config.js';
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const startIndex = fileContent.indexOf('module.exports =') + 'module.exports ='.length;
+        const moduleExportsContent = fileContent.substring(startIndex).trim();
+        return moduleExportsContent;
     },
 
     processCollectionLoops(template) {
@@ -203,7 +262,11 @@ module.exports = {
                 for (const key in item) {
                     // Regular expression to replace the placeholders
                     const placeholderRegex = new RegExp(`{${collectionName}.${key}}`, 'g');
-                    processedBody = processedBody.replace(placeholderRegex, item[key]);
+                    let itemValue = item[key];
+                    if(Array.isArray(item[key])){
+                        itemValue = item[key].join("|");
+                    }
+                    processedBody = processedBody.replace(placeholderRegex, itemValue);
                 }
     
                 loopResult += processedBody;

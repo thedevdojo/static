@@ -55,5 +55,21 @@ module.exports = {
             console.log(stdout);
         });
         
+    },
+    movePublicFoderContents(){
+        const publicFolder = path.join(currentDirectory, 'public');
+        const siteFolder = path.join(currentDirectory, '_site');
+
+        try {
+            if (fs.existsSync(publicFolder)) {
+                this.createFolderIfNotExists(siteFolder);
+
+                fsExtra.copySync(publicFolder, siteFolder);
+                console.log('Contents from the public folder have been moved to the _site folder.');
+            } 
+        } catch (err) {
+            console.error(`An error occurred: ${err}`);
+        }
+
     }
 }

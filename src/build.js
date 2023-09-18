@@ -16,6 +16,7 @@ module.exports = {
         assets.buildJSFile(true);
         assets.buildTailwindCSS();
         assets.moveImages();
+        assets.movePublicFoderContents();
 
         fs.mkdirSync(buildDir, { recursive: true });
         buildPages(pagesDir, buildDir, url);
