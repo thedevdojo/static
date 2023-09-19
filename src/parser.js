@@ -28,7 +28,7 @@ module.exports = {
             // replace {slot} with content inside of Layout
             layout = layout.replace('{slot}', this.parseIncludeContent(this.getPageContent(page)));
 
-            page = this.processCollectionLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build));
+            page = this.processCollectionLoops(this.processContentLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build)));
 
             page = this.parseURLs(page, url);
         }
@@ -41,7 +41,6 @@ module.exports = {
         let content = fs.readFileSync(contentPath, 'utf8');
 
         let pagePath = this.getPageForContent(contentPath);
-        console.log('page Path: ' + pagePath);
         let page = this.processFile(pagePath, build, url);
 
         let contentHTML = converter.makeHtml(this.removeFrontMatter(content));
@@ -96,7 +95,6 @@ module.exports = {
         const htmlFilePath = path.join(markdownDir, `${markdownFileName}.html`);
         const pageHTMLFilePath = htmlFilePath.replace(path.join(currentDirectory, '/content'), path.join(currentDirectory, '/pages'));
 
-        console.log('checking for: ' + pageHTMLFilePath);
         if (fs.existsSync(pageHTMLFilePath)) {
             return pageHTMLFilePath;
         }
@@ -110,12 +108,10 @@ module.exports = {
             const parentHtmlFilePath = path.join(parentDir, htmlFileName);
             const indexHtmlFilePath = path.join(currentDir, 'index.html');
 
-            console.log('checking for: ' + indexHtmlFilePath);
             if (fs.existsSync(indexHtmlFilePath)) {
             return indexHtmlFilePath;
             }
 
-            console.log('checking for: ' + parentHtmlFilePath);
             if (fs.existsSync(parentHtmlFilePath)) {
             return parentHtmlFilePath;
             }
@@ -237,33 +233,152 @@ module.exports = {
         return moduleExportsContent;
     },
 
+    processContentLoops(body){
+        const forEachContentTags = this.forEachContentTags(body);
+        for(i=0; i < forEachContentTags.length; i++){
+            const attributesAndValues = this.forEachAttributesAndValues(forEachContentTags[i]);
+            this.storeContentCollection(attributesAndValues.content, this.frontmatterLoops(currentDirectory + '/content/' + attributesAndValues.content));
+        }
+        //console.log(this.replaceForEachContentWithCollection( body ));
+        return this.replaceForEachContentWithCollection( body );
+    },
+
+    replaceForEachContentWithCollection(body) {
+        const regex = /<ForEach\s+([^>]+)>/g;
+        const updatedBody = body.replace(regex, (match, attributes) => {
+            const updatedAttributes = attributes.replace(/content="([^"]+)"/g, 'collection="content/$1"');
+            //const updatedAttributes = attributes.replace(/content=/g, `collection="content/$&-index-${index}"`);
+            //const updatedAttributes = attributes.replace(/content=/g, 'collection=');
+          return `<ForEach ${updatedAttributes}>`;
+        });
+      
+        return updatedBody;
+    },
+
+    frontmatterLoops(directoryPath, sortByKey = 'date') {
+        const files = fs.readdirSync(directoryPath);
+
+        const frontmatters = [];
+
+        //const converter = new showdown.Converter();
+
+        files.forEach((file) => {
+            const filePath = `${directoryPath}/${file}`;
+            const fileContent = fs.readFileSync(filePath, 'utf-8');
+
+            // Extract the frontmatter from the markdown file
+            const frontmatter = fm(fileContent).attributes; //fm.(fileContent, converter);
+
+            frontmatter.content = this.removeFrontMatter(fileContent);
+            frontmatters.push(frontmatter);
+        });
+
+        // Sort the frontmatters array by the specified key
+        frontmatters.sort((a, b) => a[sortByKey].localeCompare(b[sortByKey]));
+
+        return frontmatters;
+    },
+
+    forEachAttributesAndValues(string){
+        const regex = /<ForEach\s+([^>]+)>/g;
+        const attributes = {};
+
+        let match;
+        while ((match = regex.exec(string)) !== null) {
+            const attributeString = match[1];
+            const attributeRegex = /(\w+)="([^"]+)"/g;
+            let attributeMatch;
+
+            while ((attributeMatch = attributeRegex.exec(attributeString)) !== null) {
+                const attributeName = attributeMatch[1];
+                const attributeValue = attributeMatch[2];
+                attributes[attributeName] = attributeValue;
+            }
+        }
+
+        return attributes
+    },
+
+    forEachContentTags(body) {
+        const regex = /<ForEach\s+([^>]+)>/g;
+        const forEachTags = [];
+
+        let match;
+        while ((match = regex.exec(body)) !== null) {
+            const forEachTag = match[0];
+            const attributeString = match[1];
+            const attributeRegex = /(\w+)="([^"]+)"/g;
+            let attributeMatch;
+            let hasContentAttribute = false;
+
+            while ((attributeMatch = attributeRegex.exec(attributeString)) !== null) {
+            const attributeName = attributeMatch[1];
+            const attributeValue = attributeMatch[2];
+            if (attributeName === 'content') {
+                hasContentAttribute = true;
+                break;
+            }
+            }
+
+            if (hasContentAttribute) {
+            forEachTags.push(forEachTag);
+            }
+        }
+
+        return forEachTags;
+    },
+
+    storeContentCollection(collectionName, collectionData) {
+        const contentCollectionFolderPath = path.join(currentDirectory, '/collections/content');
+        if (!fs.existsSync(contentCollectionFolderPath)) {
+            fs.mkdirSync(contentCollectionFolderPath);
+        }
+        
+        const filePath = path.join(contentCollectionFolderPath, `${collectionName}.json`);
+        const jsonData = JSON.stringify(collectionData, null, 2);
+        fs.writeFileSync(filePath, jsonData);
+    },
+
     processCollectionLoops(template) {
-    
         // Regular expression to capture the ForEach sections
-        const loopRegex = /<ForEach collection="([^"]+)">([\s\S]*?)<\/ForEach>/g;
+        const loopRegex = /<ForEach\s+([^>]+)>([\s\S]*?)<\/ForEach>/g;
     
         let match;
         while ((match = loopRegex.exec(template)) !== null) {
-            const collectionName = match[1];
+            const attributeString = match[1];
             const loopBody = match[2];
+
+            const attributes = this.forEachAttributesAndValues('<ForEach ' + attributeString + '>');
+            console.log(attributes);
+    
+            // Extract the collection name from the attributes
+            //const collectionNameMatch = /collection="([^"]+)"/.exec(attributeString);
+            if (!attributes.collection) {
+                continue; // Skip if collection name is not found
+            }
             
     
             // Load the corresponding JSON file
-            const jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/collections/', `${collectionName}.json`), 'utf8'));
-    
+            const jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/collections/', `${attributes.collection}.json`), 'utf8'));
+
+            let loopKeyword = attributes.collection.replace(/\//g, '.');
+            if (attributes.as) {
+                loopKeyword = attributes.as;
+                console.log(loopKeyword);
+            }
+
             let loopResult = '';
-    
             for (const item of jsonData) {
                 let processedBody = loopBody;
                 
                 // Process conditions
-                processedBody = this.processConditions(processedBody, item, collectionName);
-
+                processedBody = this.processConditions(processedBody, item, loopKeyword);
+    
                 for (const key in item) {
                     // Regular expression to replace the placeholders
-                    const placeholderRegex = new RegExp(`{${collectionName}.${key}}`, 'g');
+                    const placeholderRegex = new RegExp(`{${loopKeyword}.${key}}`, 'g');
                     let itemValue = item[key];
-                    if(Array.isArray(item[key])){
+                    if (Array.isArray(item[key])) {
                         itemValue = item[key].join("|");
                     }
                     processedBody = processedBody.replace(placeholderRegex, itemValue);
