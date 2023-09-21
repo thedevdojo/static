@@ -4,6 +4,7 @@ const currentDirectory = process.cwd();
 let showdown  = require('showdown'),
     converter = new showdown.Converter();
 let fm = require('front-matter');
+let isContentFile = false;
 
 module.exports = {
     processFile(filePath, build=false, url='relative') {
@@ -28,7 +29,7 @@ module.exports = {
             // replace {slot} with content inside of Layout
             layout = layout.replace('{slot}', this.parseIncludeContent(this.getPageContent(page)));
 
-            page = this.processCollectionLoops(this.processContentLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build)));
+            page = this.processCollectionLoops(this.processContentLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build), filePath), filePath);
 
             page = this.parseURLs(page, url);
         }
@@ -52,7 +53,8 @@ module.exports = {
         page = this.processFrontMatterConditions(page, contentAttributes);
         page = this.processFrontMatterReplacements(page, contentAttributes);
 
-        page = page.replace('{content}', contentHTML + attrTags);
+        page = page.replace('</head>', attrTags + '\n</head>')
+        page = page.replace('{content}', contentHTML);
 
         return page;
 
@@ -106,14 +108,19 @@ module.exports = {
             const parentDir = path.dirname(currentDir);
             htmlFileName = path.basename(currentDir) + '.html';
             const parentHtmlFilePath = path.join(parentDir, htmlFileName);
+            const indexContentHtmlFilePath = path.join(currentDir, 'index-content.html');
             const indexHtmlFilePath = path.join(currentDir, 'index.html');
 
+            if (fs.existsSync(indexContentHtmlFilePath)) {
+                return indexContentHtmlFilePath;
+            }
+
             if (fs.existsSync(indexHtmlFilePath)) {
-            return indexHtmlFilePath;
+                return indexHtmlFilePath;
             }
 
             if (fs.existsSync(parentHtmlFilePath)) {
-            return parentHtmlFilePath;
+                return parentHtmlFilePath;
             }
 
             inc++;
@@ -233,11 +240,12 @@ module.exports = {
         return moduleExportsContent;
     },
 
-    processContentLoops(body){
+    processContentLoops(body, filePath){
         const forEachContentTags = this.forEachContentTags(body);
         for(i=0; i < forEachContentTags.length; i++){
             const attributesAndValues = this.forEachAttributesAndValues(forEachContentTags[i]);
-            this.storeContentCollection(attributesAndValues.content, this.frontmatterLoops(currentDirectory + '/content/' + attributesAndValues.content));
+            const contentCollection = this.frontmatterLoops(currentDirectory + '/content/' + attributesAndValues.content);
+            this.storeContentCollection(attributesAndValues.content, contentCollection);
         }
         //console.log(this.replaceForEachContentWithCollection( body ));
         return this.replaceForEachContentWithCollection( body );
@@ -255,7 +263,7 @@ module.exports = {
         return updatedBody;
     },
 
-    frontmatterLoops(directoryPath, sortByKey = 'date') {
+    frontmatterLoops(directoryPath, sortByKey = 'date', filePath = null) {
         const files = fs.readdirSync(directoryPath);
 
         const frontmatters = [];
@@ -270,6 +278,7 @@ module.exports = {
             const frontmatter = fm(fileContent).attributes; //fm.(fileContent, converter);
 
             frontmatter.content = this.removeFrontMatter(fileContent);
+            frontmatter.link = filePath.replace(/.*\/content(.*)\..*/, '$1');
             frontmatters.push(frontmatter);
         });
 
@@ -339,7 +348,7 @@ module.exports = {
         fs.writeFileSync(filePath, jsonData);
     },
 
-    processCollectionLoops(template) {
+    processCollectionLoops(template, filePath) {
         // Regular expression to capture the ForEach sections
         const loopRegex = /<ForEach\s+([^>]+)>([\s\S]*?)<\/ForEach>/g;
     
@@ -365,11 +374,15 @@ module.exports = {
                 loopKeyword = attributes.as;
             }
 
+            let count = null;
+            if(attributes.count){
+                count = attributes.count;
+            }
+
             let loopResult = '';
             let loop = 1;
             for (const item of jsonData) {
                 let processedBody = loopBody;
-                
                 const data = { ...item, loop };
 
                 // Process conditions
@@ -387,6 +400,10 @@ module.exports = {
     
                 loopResult += processedBody;
                 loop++;
+
+                if((loop-1) == count){
+                    break;
+                }
             }
     
             template = template.replace(match[0], loopResult);
