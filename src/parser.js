@@ -108,7 +108,7 @@ module.exports = {
             const parentDir = path.dirname(currentDir);
             htmlFileName = path.basename(currentDir) + '.html';
             const parentHtmlFilePath = path.join(parentDir, htmlFileName);
-            const indexContentHtmlFilePath = path.join(currentDir, 'index-content.html');
+            const indexContentHtmlFilePath = path.join(currentDir, '[content].html');
             const indexHtmlFilePath = path.join(currentDir, 'index.html');
 
             if (fs.existsSync(indexContentHtmlFilePath)) {

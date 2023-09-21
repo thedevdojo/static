@@ -6,7 +6,9 @@ const assets = require('./assets.js');
 
 module.exports = {
     start(url='relative'){
+        
         const pagesDir = path.join(currentDirectory, './pages');
+        const contentPagesDir = path.join(currentDirectory, './content');
         const buildDir = path.join(currentDirectory, './_site');
 
         if (fs.existsSync(buildDir)) {
@@ -20,6 +22,7 @@ module.exports = {
 
         fs.mkdirSync(buildDir, { recursive: true });
         buildPages(pagesDir, buildDir, url);
+        buildContentPages(contentPagesDir, buildDir, url);
 
         console.log('Successfully built your new static website 🤘');
     }
@@ -56,17 +59,61 @@ function buildPages(pagesDir, buildDir, url) {
     }
 }
 
-function buildFile(filePath, buildDir, url){
-    const content = parser.processFile(filePath, true, url);
+function buildContentPages(contentDir, buildDir, url){
 
-    if (!filePath.endsWith('index.html')) {
-        const folderName = path.basename(filePath, '.html');
-        const folderPath = path.join(buildDir, folderName);
-        fs.mkdirSync(folderPath, { recursive: true });
-        filePath = path.join(folderPath, 'index.html');
-    } else {
-        filePath = path.join(buildDir, path.basename(filePath));
+    if (!fs.existsSync(contentDir)) {
+        return;
+    }
+    
+    const entries = fs.readdirSync(contentDir, { withFileTypes: true });
+    for (const entry of entries) {
+        const entryPath = path.join(contentDir, entry.name);
+        if (entry.isDirectory()) {
+            const newBuildDir = path.join(buildDir, entry.name);
+            fs.mkdirSync(newBuildDir, { recursive: true });
+            buildContentPages(entryPath, newBuildDir);
+        } else if (entry.isFile() && entry.name.endsWith('.md')) {
+            buildFile(entryPath, buildDir, url);
+        }
     }
 
-    fs.writeFileSync(filePath, content);
+}
+
+function buildFile(filePath, buildDir, url){
+
+    let content = null;
+
+    // Processing for Content Pages
+    if(filePath.endsWith('.md')){
+        content = parser.processContent(filePath, true, url);
+        if (!filePath.endsWith('index.md')) {
+            const folderName = path.basename(filePath, '.md');
+            const folderPath = path.join(buildDir, folderName);
+            fs.mkdirSync(folderPath, { recursive: true });
+            filePath = path.join(folderPath, 'index.html');
+        } else {
+            filePath = path.join(buildDir, path.basename(filePath));
+        }
+    } else {
+        // Processing for Pages
+        content = parser.processFile(filePath, true, url);
+
+        // ignore content pages
+        if(filePath.endsWith('[content].html')){
+            return;
+        }
+
+        if (!filePath.endsWith('index.html')) {
+            const folderName = path.basename(filePath, '.html');
+            const folderPath = path.join(buildDir, folderName);
+            fs.mkdirSync(folderPath, { recursive: true });
+            filePath = path.join(folderPath, 'index.html');
+        } else {
+            filePath = path.join(buildDir, path.basename(filePath));
+        }
+    }
+
+    if(content != null){
+        fs.writeFileSync(filePath, content);
+    }
 }
