@@ -206,16 +206,51 @@ module.exports = {
         return null;
     },
 
-    parseIncludeContent(slotContent){
+    parseIncludeContent(htmlString){
         let includeTag;
         const includeRegex = /<include src="(.*)"><\/include>/g;
-        while ((includeTag = includeRegex.exec(slotContent)) !== null) {
+        
+        while ((includeTag = includeRegex.exec(htmlString)) !== null) {
+
             const includeSrcPath = path.join(currentDirectory, '/includes/', includeTag[1]);
+            
             const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
-            slotContent = slotContent.replace(includeTag[0], includeContent);
+            htmlString = htmlString.replace(includeTag[0], includeContent);
         }
-        return slotContent;
+        return htmlString;
     },
+
+    // parseIncludeContent(htmlString){
+    //     const includeRegex = /<include src="([^"]+)"><\/include>/g;
+
+    //     // Convert the iterator to an array so we can iterate over it without issues
+    //     const matches = Array.from(htmlString.matchAll(includeRegex));
+    
+    //     for (const match of matches) {
+    //         const includeSrcPath = path.join(currentDirectory, '/includes/', match[1]);
+    //         const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
+    //         htmlString = htmlString.replace(match[0], includeContent);
+    //     }
+    
+    //     return htmlString;
+    // },
+    
+    // parseIncludeContent(htmlString) {
+    //     const includeRegex = /<include\s+src="([^"]+?)"><\/include>/g;
+    //     let replacements = [];
+    
+    //     for (const match of htmlString.matchAll(includeRegex)) {
+    //         const includeSrcPath = path.join(currentDirectory, '/includes/', match[1]);
+    //         const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
+    //         replacements.push({from: match[0], to: includeContent});
+    //     }
+    
+    //     for (const replacement of replacements) {
+    //         htmlString = htmlString.replace(replacement.from, replacement.to);
+    //     }
+    
+    //     return htmlString;
+    // },
 
     parseShortCodes(content, url, build=false){
         // {tailwindcss} shortcode

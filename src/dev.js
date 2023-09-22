@@ -27,11 +27,12 @@ module.exports = {
             this.getAvailablePort(liveReloadDefaultPort).then((liveReloadAvailablePort) => {
                 
                 const liveReloadServer = livereload.createServer({
-                    port: liveReloadAvailablePort
+                    port: liveReloadAvailablePort,
+                    exts: ['html', 'css', 'js', 'png', 'gif', 'jpg', 'md']
                 });
 
                 for(let i = 0; i < staticFoldersToWatch.length; i++){
-                    liveReloadServer.watch(currentDirectory + "/" + staticFoldersToWatch[i]);
+                    liveReloadServer.watch(currentDirectory + "/" + staticFoldersToWatch[i] + "/**/*");
                 }
                 
                 liveReloadServer.watch(currentDirectory + "/tailwind.config.js");
