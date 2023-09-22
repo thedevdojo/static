@@ -12,6 +12,7 @@ const parser = require('./parser.js');
 const assets = require('./assets.js');
 const liveReloadDefaultPort = 35729;
 const env = require('./env.js');
+const staticFoldersToWatch = ['assets', 'collections', 'content', 'includes', 'layouts', 'pages', 'public'];
 
 const esbuild = require('esbuild');
 
@@ -28,7 +29,12 @@ module.exports = {
                 const liveReloadServer = livereload.createServer({
                     port: liveReloadAvailablePort
                 });
-                liveReloadServer.watch(currentDirectory + "/src");
+
+                for(let i = 0; i < staticFoldersToWatch.length; i++){
+                    liveReloadServer.watch(currentDirectory + "/" + staticFoldersToWatch[i]);
+                }
+                
+                liveReloadServer.watch(currentDirectory + "/tailwind.config.js");
                 liveReloadServer.watch(currentDirectory + "/_site/assets");
                 liveReloadServer.server.once("connection", () => {
                     setTimeout(() => {
