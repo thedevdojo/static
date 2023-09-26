@@ -23,11 +23,11 @@ module.exports = {
           });
     },
     newProject(folderName) {
-        console.log('Generating your new site inside ' + folderName + ' folder.');
+        console.log('New setup initialized');
         fs.mkdirSync('./' + folderName , { recursive: true });
 
         process.chdir(process.cwd() + '/' + folderName);
-        console.log('Downloading static starter template for your site');
+        console.log('Downloading static starter template');
         request
             .get(themeSource)
             .on('error', function(error) {
@@ -35,15 +35,15 @@ module.exports = {
             })
             .pipe(fs.createWriteStream(zipFile))
             .on('finish', function() {
-                console.log('Finished Downloading Template');
+                console.log('Finished downloading template');
                 var zip = new admZip(zipFile);
-                console.log('Extracting Template Zip File');
+                console.log('Extracting template zip file');
                 zip.extractAllTo(process.cwd());
-                console.log('Finished Unzipping');
+                console.log('Finished unzipping');
                 fs.unlinkSync(`./${zipFile}`);
 
                 mv(process.cwd() + '/static-starter-main', process.cwd(), {mkdirp: false, clobber: false}, function(err) {
-                    console.log('Created new static site inside of the ' + folderName + ' folder');
+                    console.log('New site available inside ' + folderName + ' folder');
                 });
 
                 // let execString = "cd " + String(process.cwd()) + " && npx @devdojo/static dev";

@@ -187,6 +187,26 @@ module.exports = {
         return null;
     },
 
+    getIncludeAttributes(page) {
+        const includeTagRegex = /<include\s+([^>]*)>([\s\S]*?)<\/include>/;
+        const includeTagMatch = page.match(includeTagRegex);
+    
+        if (includeTagMatch) {
+            const attributesString = includeTagMatch[1];
+            const attributesRegex = /(\w+)="([^"]*)"/g;
+            let attributeMatch;
+            let attributes = {};
+    
+            while ((attributeMatch = attributesRegex.exec(attributesString)) !== null) {
+                attributes[attributeMatch[1]] = attributeMatch[2];
+            }
+    
+            return attributes;
+        }
+    
+        return null;
+    },
+
     replaceAttributesInLayout(layout, layoutAttributes) {
         for (let key in layoutAttributes) {
             let regex = new RegExp(`{${key}}`, 'g');
@@ -207,50 +227,49 @@ module.exports = {
     },
 
     parseIncludeContent(htmlString){
+
+        // while ((includeTag = includeRegex.exec(htmlString)) !== null) {
+        //     const includeSrcPath = path.join(currentDirectory, '/includes/', includeTag[1]);
+        //     const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
+        
+        //     // Loop through the attributes of the include tag
+        //     const attributeRegex = /(\w+)="([^"]+)"/g;
+        //     let attributeMatch;
+        //     while ((attributeMatch = attributeRegex.exec(includeTag[0])) !== null) {
+        //         const attributeName = attributeMatch[1];
+        //         const attributeValue = attributeMatch[2];
+        
+        //         // Replace attribute placeholders with attribute values in the include content
+        //         const attributePlaceholderRegex = new RegExp(`{${attributeName}}`, 'g');
+        //         includeContent = includeContent.replace(attributePlaceholderRegex, attributeValue);
+        //     }
+        
+        //     htmlString = htmlString.replace(includeTag[0], includeContent);
+        // }
+        // return htmlString;
+
+        
+
         let includeTag;
-        const includeRegex = /<include src="(.*)"><\/include>/g;
+        const includeRegex = /<include\s+[^>]*src="([^"]+)"[^>]*><\/include>/g;
+
         
         while ((includeTag = includeRegex.exec(htmlString)) !== null) {
-
+            
             const includeSrcPath = path.join(currentDirectory, '/includes/', includeTag[1]);
             
-            const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
+            let includeContent = fs.readFileSync(includeSrcPath, 'utf8');
+
+            const includeAttributes = this.getIncludeAttributes(includeTag[0]);
+            for (const [attribute, value] of Object.entries(includeAttributes)) {
+                const regex = new RegExp(`{${attribute}}`, 'g');
+                includeContent = includeContent.replace(regex, value);
+            }
+
             htmlString = htmlString.replace(includeTag[0], includeContent);
         }
         return htmlString;
     },
-
-    // parseIncludeContent(htmlString){
-    //     const includeRegex = /<include src="([^"]+)"><\/include>/g;
-
-    //     // Convert the iterator to an array so we can iterate over it without issues
-    //     const matches = Array.from(htmlString.matchAll(includeRegex));
-    
-    //     for (const match of matches) {
-    //         const includeSrcPath = path.join(currentDirectory, '/includes/', match[1]);
-    //         const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
-    //         htmlString = htmlString.replace(match[0], includeContent);
-    //     }
-    
-    //     return htmlString;
-    // },
-    
-    // parseIncludeContent(htmlString) {
-    //     const includeRegex = /<include\s+src="([^"]+?)"><\/include>/g;
-    //     let replacements = [];
-    
-    //     for (const match of htmlString.matchAll(includeRegex)) {
-    //         const includeSrcPath = path.join(currentDirectory, '/includes/', match[1]);
-    //         const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
-    //         replacements.push({from: match[0], to: includeContent});
-    //     }
-    
-    //     for (const replacement of replacements) {
-    //         htmlString = htmlString.replace(replacement.from, replacement.to);
-    //     }
-    
-    //     return htmlString;
-    // },
 
     parseShortCodes(content, url, build=false){
         // {tailwindcss} shortcode
@@ -304,6 +323,7 @@ module.exports = {
         const frontmatters = [];
 
         //const converter = new showdown.Converter();
+        let hasSortByKey = false;
 
         files.forEach((file) => {
             const filePath = `${directoryPath}/${file}`;
@@ -312,13 +332,19 @@ module.exports = {
             // Extract the frontmatter from the markdown file
             const frontmatter = fm(fileContent).attributes; //fm.(fileContent, converter);
 
+            if(frontmatter.hasOwnProperty(sortByKey)){
+                hasSortByKey = true;
+            }
+
             frontmatter.content = this.removeFrontMatter(fileContent);
             frontmatter.link = filePath.replace(/.*\/content(.*)\..*/, '$1');
             frontmatters.push(frontmatter);
         });
 
         // Sort the frontmatters array by the specified key
-        frontmatters.sort((a, b) => a[sortByKey].localeCompare(b[sortByKey]));
+        if(hasSortByKey){
+            frontmatters.sort((a, b) => a[sortByKey].localeCompare(b[sortByKey]));
+        }
 
         return frontmatters;
     },
