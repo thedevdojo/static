@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const currentDirectory = process.cwd();
-let showdown  = require('showdown'),
-    converter = new showdown.Converter();
+let showdown  = require('showdown');
+let toc = require('markdown-toc');
 let fm = require('front-matter');
 let isContentFile = false;
+let env = require('./env.js');
 
 module.exports = {
     processFile(filePath, build=false, url='relative') {
@@ -44,16 +45,27 @@ module.exports = {
         let pagePath = this.getPageForContent(contentPath);
         let page = this.processFile(pagePath, build, url);
 
-        let contentHTML = converter.makeHtml(this.removeFrontMatter(content));
+        showdown.setOption('ghCompatibleHeaderId', true);
+        converter = new showdown.Converter();
+
+        let tableOfContents = toc(content);
+        let updatedContent = content.replace('[toc]', tableOfContents.content);
+
+        let contentHTML = converter.makeHtml(this.removeFrontMatter(updatedContent));
         let contentAttributes = fm(content).attributes;
 
-        let attrTags = "<script>document.addEventListener('DOMContentLoaded', (event) => { window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes) + "'); });</script>";
-        
+        let staticJS = "window.toc = JSON.parse('" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "'); window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "');";
+        let attrTags = "<script>document.addEventListener('DOMContentLoaded', (event) => { " + staticJS + " }); " + staticJS + "</script>";
+
         // process frontmatter conditions
         page = this.processFrontMatterConditions(page, contentAttributes);
         page = this.processFrontMatterReplacements(page, contentAttributes);
 
-        page = page.replace('</head>', attrTags + '\n</head>')
+        if(page.includes('[static_js]')){
+            page = page.replace('[static_js]', attrTags);
+        } else {
+            page = page.replace('</head>', attrTags + '\n</head>');
+        }
         page = page.replace('{content}', contentHTML);
 
         return page;
@@ -279,7 +291,15 @@ module.exports = {
         }
         let tailwindReplacement = build ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
         if(!build){
-            const moduleExportsContent = this.getModuleExportsContent();
+            let moduleExportsContent = this.getModuleExportsContent();
+            
+            // the inline config does not need the plugins array
+            const regex = /plugins:\s*\[[^\]]*\]/g;
+            moduleExportsContent = moduleExportsContent.replace(regex, 'plugins: []');
+            moduleExportsContent = moduleExportsContent.replace('plugins: [],', '');
+            moduleExportsContent = moduleExportsContent.replace('plugins: []', '');
+            
+
             tailwindReplacement += '<script>tailwind.config = ' + moduleExportsContent.replace(/;*$/, '') + '</script>';
         }
         content = content.replace('{tailwindcss}', tailwindReplacement);
@@ -301,7 +321,6 @@ module.exports = {
             const contentCollection = this.frontmatterLoops(currentDirectory + '/content/' + attributesAndValues.content);
             this.storeContentCollection(attributesAndValues.content, contentCollection);
         }
-        //console.log(this.replaceForEachContentWithCollection( body ));
         return this.replaceForEachContentWithCollection( body );
     },
 

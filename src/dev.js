@@ -25,11 +25,12 @@ module.exports = {
 
             // get available port for the Live Reload Server
             this.getAvailablePort(liveReloadDefaultPort).then((liveReloadAvailablePort) => {
-                
-                const liveReloadServer = livereload.createServer({
+            
+                const liveReloadOptions = {
                     port: liveReloadAvailablePort,
                     exts: ['html', 'css', 'js', 'png', 'gif', 'jpg', 'md']
-                });
+                };
+                const liveReloadServer = livereload.createServer(liveReloadOptions);
 
                 for(let i = 0; i < staticFoldersToWatch.length; i++){
                     liveReloadServer.watch(currentDirectory + "/" + staticFoldersToWatch[i] + "/**/*");
@@ -43,7 +44,7 @@ module.exports = {
                     }, 100);
                 });
 
-                app.use(connectLiveReload());
+                app.use(connectLiveReload(liveReloadOptions));
 
                 app.use('/assets', express.static(path.join(currentDirectory, '_site/assets')))
                 app.use('/', express.static(path.join(currentDirectory, 'public/')))
