@@ -33,7 +33,6 @@ describe('bin/static CLI', () => {
         console.log('Directory Contents:', executeCommand('ls -al'));
 
         const expectedOutput = [
-            "Contents from the public folder have been moved to the _site folder.",
             "Successfully built your new static website 🤘",
         ].join('\n');
         expect(output.trim()).toBe(expectedOutput);

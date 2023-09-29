@@ -54,7 +54,7 @@ module.exports = {
         let contentHTML = converter.makeHtml(this.removeFrontMatter(updatedContent));
         let contentAttributes = fm(content).attributes;
 
-        let staticJS = "window.toc = JSON.parse('" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "'); window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "');";
+        let staticJS = "window.toc = JSON.parse('" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "'); window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "'); localStorage.setItem('toc', '" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "'); localStorage.setItem('frontmatter', '" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "');";
         let attrTags = "<script>document.addEventListener('DOMContentLoaded', (event) => { " + staticJS + " }); " + staticJS + "</script>";
 
         // process frontmatter conditions
