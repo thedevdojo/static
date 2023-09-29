@@ -298,9 +298,14 @@ module.exports = {
             moduleExportsContent = moduleExportsContent.replace(regex, 'plugins: []');
             moduleExportsContent = moduleExportsContent.replace('plugins: [],', '');
             moduleExportsContent = moduleExportsContent.replace('plugins: []', '');
-            
 
             tailwindReplacement += '<script>tailwind.config = ' + moduleExportsContent.replace(/;*$/, '') + '</script>';
+
+            // If it is not build we also want to grab the contents inside the main.css file and add it to the head
+            let cssContent = fs.readFileSync(currentDirectory + '/assets/css/main.css', 'utf8');
+            // We also want to replace the tailwindcss @tailwind commands:
+            cssContent = cssContent.replace('@tailwind base;', '').replace('@tailwind components;', '').replace('@tailwind utilities;', '');
+            tailwindReplacement += `<style>${cssContent}</style>`;
         }
         content = content.replace('{tailwindcss}', tailwindReplacement);
         
