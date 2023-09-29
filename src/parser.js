@@ -55,11 +55,14 @@ module.exports = {
         let contentAttributes = fm(content).attributes;
 
         let staticJS = "window.toc = JSON.parse('" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "'); window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "'); localStorage.setItem('toc', '" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "'); localStorage.setItem('frontmatter', '" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "');";
-        let attrTags = "<script>document.addEventListener('DOMContentLoaded', (event) => { " + staticJS + " }); " + staticJS + "</script>";
+        let staticJSEvent = "window.dispatchEvent(new CustomEvent('static:content', { detail: { frontmatter: '" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "', toc: '" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "' } }));";
+        let attrTags = "<script>document.addEventListener('DOMContentLoaded', (event) => { " + staticJS + " }); " + staticJSEvent + "</script>";
 
         // process frontmatter conditions
         page = this.processFrontMatterConditions(page, contentAttributes);
         page = this.processFrontMatterReplacements(page, contentAttributes);
+
+        
 
         if(page.includes('[static_js]')){
             page = page.replace('[static_js]', attrTags);
