@@ -56,7 +56,7 @@ module.exports = {
 
         let staticJS = "window.toc = JSON.parse('" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "'); window.frontmatter=JSON.parse('" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "'); localStorage.setItem('toc', '" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "'); localStorage.setItem('frontmatter', '" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "');";
         let staticJSEvent = "window.dispatchEvent(new CustomEvent('static:content', { detail: { frontmatter: '" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "', toc: '" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "' } }));";
-        let attrTags = "<script>document.addEventListener('DOMContentLoaded', (event) => { " + staticJS + " }); " + staticJSEvent + "</script>";
+        let attrTags = "<script>" + staticJS + staticJSEvent + "</script>";
 
         // process frontmatter conditions
         page = this.processFrontMatterConditions(page, contentAttributes);
