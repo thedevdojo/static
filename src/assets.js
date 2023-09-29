@@ -65,7 +65,7 @@ module.exports = {
                 this.createFolderIfNotExists(siteFolder);
 
                 fsExtra.copySync(publicFolder, siteFolder);
-                console.log('Contents from the public folder have been moved to the _site folder.');
+                //console.log('Contents from the public folder have been moved to the _site folder.');
             } 
         } catch (err) {
             console.error(`An error occurred: ${err}`);
