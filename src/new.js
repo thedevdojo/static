@@ -61,15 +61,19 @@ module.exports = {
                 // console.log('path');
                 // console.log(require("global-modules-path").getPath("@devdojo/static"));
 
-                
+
                 let devServer = require(require("global-modules-path").getPath("@devdojo/static") + '/src/dev.js');
-                
+
+                if(process.env.NODE_ENV == 'test'){
+                    return;
+                }
+
                 let devServerPort = devServer.start();
+
                 devServerPort.then((port) => {
                     openurl.open('http://localhost:' + port);
                 });
-                //
-                
+
                 // serve.launch();
 
             });
