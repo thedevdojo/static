@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently --kill-others \"node index.js\" \"npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --watch\"",
     "build": "node index.js --build && npx tailwindcss -i ./src/assets/css/main.css -o ./build/assets/css/main.css --minify && npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --minify",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -41,7 +41,9 @@
     "superagent": "^8.1.2"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "nodemon": "^3.0.1",
+    "supertest": "^6.3.3",
     "tailwindcss": "^3.3.3"
   },
   "author": "Tony Lea",
