@@ -13,6 +13,7 @@ const assets = require('./assets.js');
 const liveReloadDefaultPort = 35729;
 const env = require('./env.js');
 const staticFoldersToWatch = ['assets', 'collections', 'content', 'includes', 'layouts', 'pages', 'public'];
+const globalModulesPath = require("global-modules-path");
 
 const esbuild = require('esbuild');
 
@@ -108,7 +109,12 @@ module.exports = {
 
         // otherwise we need to return the Page Not found error
 
-        res.status(404).send('Page not found');
+        let page404 = globalModulesPath.getPath("@devdojo/static") + '/src/pages/404.html';
+        if (fs.existsSync(page404)) {
+            const page404Content = fs.readFileSync(page404, 'utf8');
+            return res.status(404).send(page404Content);
+        }
+        res.status(404).send('coo');
         return;
 
     },

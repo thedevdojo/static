@@ -6,6 +6,7 @@ const admZip = require('adm-zip');
 var mv = require('mv');
 const { exec } = require("child_process");
 const openurl = require('openurl');
+const path = require('path');
 
 const href = `https://github.com/thedevdojo/static-starter/archive`;
 const zipFile = 'master.zip';
@@ -46,27 +47,13 @@ module.exports = {
                     console.log('New site available inside ' + folderName + ' folder');
                 });
 
-                // let execString = "cd " + String(process.cwd()) + " && npx @devdojo/static dev";
-                
-
-                // exec(execString, (err, stdout, stderr) => {
-                //     if (err) {
-                //         console.error("Error booting up dev server inside new folder");
-                //         console.error(err);
-                //     }
-                //     console.log(stdout);
-                // });
-                // console.log(process.cwd());
-
-                // console.log('path');
-                // console.log(require("global-modules-path").getPath("@devdojo/static"));
-
-
                 let devServer = require(require("global-modules-path").getPath("@devdojo/static") + '/src/dev.js');
 
                 if(process.env.NODE_ENV == 'test'){
                     return;
                 }
+
+                process.chdir(process.cwd());
 
                 let devServerPort = devServer.start();
 

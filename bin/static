@@ -11,6 +11,10 @@ if(cmd == '--version'){
 }
 
 if(cmd == 'new'){
+    if(arg1 == undefined){
+        console.log('Please specify a folder name. Ex: static new folder-name');
+        return;
+    }
     var newCmd = require('../src/new.js');
     newCmd.newProject(arg1);
 }
