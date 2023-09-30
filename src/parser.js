@@ -32,6 +32,8 @@ module.exports = {
 
             page = this.processCollectionLoops(this.processContentLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build), filePath), filePath);
 
+            page = this.processCollectionJSON(page);
+
             page = this.parseURLs(page, url);
         }
 
@@ -103,6 +105,18 @@ module.exports = {
     
             return meetsCondition ? body : '';
         });
+    },
+
+    processCollectionJSON(body){
+        const collectionRegex = /{collections\.([^}]+)\.json}/g;
+        let match;
+        while ((match = collectionRegex.exec(body)) !== null) {
+            const collectionName = match[1];
+            const collectionData = JSON.parse(fs.readFileSync(path.join(currentDirectory, `/collections/${collectionName}.json`), 'utf8'));
+            const collectionDataString = JSON.stringify(collectionData);
+            body = body.replace(match[0], collectionDataString);
+        }
+        return body;
     },
 
     // Parse down the directory tree until we find a `.html` file for this content
