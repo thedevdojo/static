@@ -7,11 +7,9 @@ var mv = require('mv');
 const { exec } = require("child_process");
 const openurl = require('openurl');
 const path = require('path');
-
-const href = `https://github.com/thedevdojo/static-starter/archive`;
-const zipFile = 'master.zip';
-
-const themeSource = `${href}/${zipFile}`;
+const templates = require('./templates.js');
+const zipFile = 'main.zip';
+const assets = require('./assets.js');
 
 module.exports = {
     welcome() {
@@ -23,14 +21,17 @@ module.exports = {
             if (err) throw err;
           });
     },
-    newProject(folderName) {
+    newProject(folderName, template = '--starter') {
         console.log('New setup initialized');
+        template = templates.get(template.replace('--', ''));
+        templateZipFile = `${template.repo}/archive/${zipFile}`;
+        repoName = template.repo.split('/').pop();
         fs.mkdirSync('./' + folderName , { recursive: true });
 
         process.chdir(process.cwd() + '/' + folderName);
-        console.log('Downloading static starter template');
+        console.log('Downloading ' + template.slug + ' template');
         request
-            .get(themeSource)
+            .get(templateZipFile)
             .on('error', function(error) {
                 console.log(error);
             })
@@ -43,25 +44,38 @@ module.exports = {
                 console.log('Finished unzipping');
                 fs.unlinkSync(`./${zipFile}`);
 
-                mv(process.cwd() + '/static-starter-main', process.cwd(), {mkdirp: false, clobber: false}, function(err) {
+                mv(process.cwd() + '/' + repoName + '-main', process.cwd(), {mkdirp: false, clobber: false}, function(err) {
                     console.log('New site available inside ' + folderName + ' folder');
+
+                    let devServer = require(require("global-modules-path").getPath("@devdojo/static") + '/src/dev.js');
+
+                    if(process.env.NODE_ENV == 'test'){
+                        return;
+                    }
+
+                    process.chdir(process.cwd());
+                    
+                    
+
+                    console.log('processing template builds and starting dev server');
+                    exec("cd " + process.cwd() + " && npm install && static build", (err, stdout, stderr) => {
+                        if (err) {
+                            console.error("Error building assets, please re-run static dev command.");
+                            console.error(err);
+                        }
+                        let devServerPort = devServer.start(false);
+
+                        devServerPort.then((port) => {
+                            openurl.open('http://localhost:' + port);
+                        });
+
+                    });
+
                 });
 
-                let devServer = require(require("global-modules-path").getPath("@devdojo/static") + '/src/dev.js');
+                
 
-                if(process.env.NODE_ENV == 'test'){
-                    return;
-                }
-
-                process.chdir(process.cwd());
-
-                let devServerPort = devServer.start();
-
-                devServerPort.then((port) => {
-                    openurl.open('http://localhost:' + port);
-                });
-
-                // serve.launch();
+                
 
             });
     }

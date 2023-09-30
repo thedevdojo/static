@@ -18,9 +18,11 @@ const globalModulesPath = require("global-modules-path");
 const esbuild = require('esbuild');
 
 module.exports = {
-    start(){
-        assets.buildJSFile();
-        assets.moveImages();
+    start(moveAssets = true){
+        if(moveAssets){
+            assets.buildJSFile();
+            assets.moveImages();
+        }
 
         return this.getAvailablePort(port).then((availablePort) => {
 
