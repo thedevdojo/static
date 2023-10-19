@@ -21,6 +21,10 @@ const templates = [
         repo: 'https://github.com/static-templates/aria'
     },
     {
+        slug: 'boxed',
+        repo: 'https://github.com/static-templates/boxed'
+    },
+    {
         slug: 'blog',
         repo: 'https://github.com/static-templates/blog'
     },

@@ -469,7 +469,7 @@ module.exports = {
             
     
             // Load the corresponding JSON file
-            const jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/collections/', `${attributes.collection}.json`), 'utf8'));
+            let jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/collections/', `${attributes.collection}.json`), 'utf8'));
 
             let loopKeyword = attributes.collection.replace(/\//g, '.');
             if (attributes.as) {
@@ -480,6 +480,8 @@ module.exports = {
             if(attributes.count){
                 count = attributes.count;
             }
+
+            jsonData = this.handleOrderBy(jsonData, attributes);
 
             let loopResult = '';
             let loop = 1;
@@ -545,6 +547,39 @@ module.exports = {
     
             return meetsCondition ? body : '';
         });
+    },
+
+    handleOrderBy: function(jsonData, attributes){
+        if (attributes.orderBy) {
+            jsonData.sort((a, b) => {
+                const orderBy = attributes.orderBy.split(',').map(item => item.trim());
+                const valueA = a[orderBy[0]];
+                const valueB = b[orderBy[0]];
+                let direction = 'asc';
+        
+                if (orderBy.length > 1) {
+                    direction = orderBy[1].toLowerCase().trim();
+                }
+        
+                if (typeof valueA === 'string' && typeof valueB === 'string') {
+                    if (direction === 'desc') {
+                        return valueB.localeCompare(valueA);
+                    } else {
+                        return valueA.localeCompare(valueB);
+                    }
+                } else if (typeof valueA === 'number' && typeof valueB === 'number') {
+                    if (direction === 'desc') {
+                        return valueB - valueA;
+                    } else {
+                        return valueA - valueB;
+                    }
+                } else {
+                    return 0;
+                }
+            });
+        }
+
+        return jsonData;
     }
 
     // processConditions(content, data, parentCollection, loop) {

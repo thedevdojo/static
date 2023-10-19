@@ -18,7 +18,8 @@ if(cmd == 'new'){
     }
     var newCmd = require('../src/new.js');
     if(arg2 != undefined){
-        newCmd.newProject(arg1, arg2);
+        template = arg2.replace('--template=', '');
+        newCmd.newProject(arg1, template);
         return;
     }
     newCmd.newProject(arg1);
