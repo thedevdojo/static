@@ -48,20 +48,26 @@ module.exports = {
                 });
 
                 // TODO: Allow user to specify setting headers in the dev server via a config file
-                // app.use(function(req, res, next) {
-                //     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-                //     res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-                //     next();
-                // });
+                let staticJSON = {};
+
+                const staticJsonPath = path.join(currentDirectory, 'static.json');
+                if (fs.existsSync(staticJsonPath)) {
+                    const staticJsonContent = fs.readFileSync(staticJsonPath, 'utf8');
+                    staticJSON = JSON.parse(staticJsonContent);
+                }
+
+                app.use(function(req, res, next) {
+                    if (staticJSON.hasOwnProperty('headers')) {
+                        for (const header in staticJSON.headers) {
+                            res.setHeader(header, staticJSON.headers[header]);
+                        }
+                    }
+                    next();
+                });
 
                 app.use(connectLiveReload(liveReloadOptions));
 
-                // let options = {
-                //     setHeaders: function (res, path, stat) {
-                //         res.set("Cross-Origin-Opener-Policy", "same-origin");
-                //         res.set("Cross-Origin-Embedder-Policy", "require-corp");
-                //       }
-                // }
+                
 
                 app.use('/assets', express.static(path.join(currentDirectory, '_site/assets')))
                 app.use('/', express.static(path.join(currentDirectory, 'public/')))
