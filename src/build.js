@@ -116,8 +116,6 @@ function buildFile(filePath, buildDir, url){
         }
     }
 
-    console.log('writing file: ');
-    console.log(filePath);
     if(content != null){
         fs.writeFileSync(filePath, content);
     }
