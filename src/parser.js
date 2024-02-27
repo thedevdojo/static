@@ -48,6 +48,7 @@ module.exports = {
         let page = this.processFile(pagePath, build, url);
 
         showdown.setOption('ghCompatibleHeaderId', true);
+        showdown.setOption('tables', true);
         converter = new showdown.Converter();
 
         let tableOfContents = toc(content);

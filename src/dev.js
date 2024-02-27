@@ -47,7 +47,21 @@ module.exports = {
                     }, 100);
                 });
 
+                // TODO: Allow user to specify setting headers in the dev server via a config file
+                // app.use(function(req, res, next) {
+                //     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+                //     res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+                //     next();
+                // });
+
                 app.use(connectLiveReload(liveReloadOptions));
+
+                // let options = {
+                //     setHeaders: function (res, path, stat) {
+                //         res.set("Cross-Origin-Opener-Policy", "same-origin");
+                //         res.set("Cross-Origin-Embedder-Policy", "require-corp");
+                //       }
+                // }
 
                 app.use('/assets', express.static(path.join(currentDirectory, '_site/assets')))
                 app.use('/', express.static(path.join(currentDirectory, 'public/')))

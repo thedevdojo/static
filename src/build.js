@@ -93,6 +93,9 @@ function buildFile(filePath, buildDir, url){
             filePath = path.join(folderPath, 'index.html');
         } else {
             filePath = path.join(buildDir, path.basename(filePath));
+            if(filePath.endsWith('index.md')){
+                filePath = filePath.replace('index.md', 'index.html');
+            }
         }
     } else {
         // Processing for Pages
