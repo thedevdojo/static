@@ -26,8 +26,12 @@ if(cmd == 'new'){
 }
 
 if(cmd == 'dev'){
+    let url = 'relative';
+    if(arg1 != 'undefined'){
+        url = arg1;
+    }
     var dev = require('../src/dev.js');
-    dev.start();
+    dev.start(url);
 }
 
 if(cmd == 'build'){

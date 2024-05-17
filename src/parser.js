@@ -10,6 +10,7 @@ let env = require('./env.js');
 module.exports = {
     processFile(filePath, build=false, url='relative') {
 
+
         let page = this.getPage(filePath);
     
         const layoutTagExists = /<layout[^>]*>[\s\S]*?<\/layout>/.test(page);
@@ -33,8 +34,6 @@ module.exports = {
             page = this.processCollectionLoops(this.processContentLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build), filePath), filePath);
 
             page = this.processCollectionJSON(page);
-
-            page = this.parseURLs(page, url);
         }
 
         return page;
@@ -582,34 +581,6 @@ module.exports = {
 
         return jsonData;
     }
-
-    // processConditions(content, data, parentCollection, loop) {
-    //     // Regular expression to capture the If sections
-    //     const conditionRegex = /<If condition="([^"]+)">([\s\S]*?)<\/If>/g;
-    
-    //     return content.replace(conditionRegex, (match, condition, body) => {
-    //         // Convert placeholder {collectionName.key} into JavaScript context variables
-    //         condition = condition.replace(/{([^}]+)\.([^}]+)}/g, (m, collection, key) => {
-    //             if (collection === parentCollection && typeof data[key] === 'string') {
-    //                 return JSON.stringify(data[key]); // Ensure strings are properly escaped
-    //             } else if (collection === parentCollection) {
-    //                 return data[key];
-    //             }
-    //             return m; // If the collection doesn't match, don't replace.
-    //         });
-    
-    //         let meetsCondition = false;
-    
-    //         // Evaluate the condition expression using eval()
-    //         try {
-    //             meetsCondition = eval(condition);
-    //         } catch (err) {
-    //             console.warn(`Failed to evaluate condition: ${condition}`, err);
-    //         }
-    
-    //         return meetsCondition ? body : '';
-    //     });
-    // }
     
         
 }
