@@ -3,6 +3,7 @@ const parser = require('./parser.js');
 const currentDirectory = process.cwd();
 const path = require('path');
 const assets = require('./assets.js');
+const url = 'relative';
 
 module.exports = {
     start(url='relative'){
@@ -52,7 +53,7 @@ function buildPages(pagesDir, buildDir, url) {
         if (entry.isDirectory()) {
             const newBuildDir = path.join(buildDir, entry.name);
             fs.mkdirSync(newBuildDir, { recursive: true });
-            buildPages(entryPath, newBuildDir);
+            buildPages(entryPath, newBuildDir, url);
         } else if (entry.isFile() && entry.name.endsWith('.html')) {
             buildFile(entryPath, buildDir, url);
         }
@@ -71,7 +72,7 @@ function buildContentPages(contentDir, buildDir, url){
         if (entry.isDirectory()) {
             const newBuildDir = path.join(buildDir, entry.name);
             fs.mkdirSync(newBuildDir, { recursive: true });
-            buildContentPages(entryPath, newBuildDir);
+            buildContentPages(entryPath, newBuildDir, url);
         } else if (entry.isFile() && entry.name.endsWith('.md')) {
             buildFile(entryPath, buildDir, url);
         }
@@ -115,6 +116,8 @@ function buildFile(filePath, buildDir, url){
             filePath = path.join(buildDir, path.basename(filePath));
         }
     }
+
+    content = parser.parseURLs(content, url);
 
     if(content != null){
         fs.writeFileSync(filePath, content);

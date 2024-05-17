@@ -18,7 +18,7 @@ const globalModulesPath = require("global-modules-path");
 const esbuild = require('esbuild');
 
 module.exports = {
-    start(moveAssets = true){
+    start(url='relative', moveAssets = true){
         if(moveAssets){
             assets.buildJSFile();
             assets.moveImages();
@@ -73,7 +73,7 @@ module.exports = {
                 app.use('/', express.static(path.join(currentDirectory, 'public/')))
                 
                 app.get('/*', (req, res) => {
-                    return this.handleRequest(req, res);
+                    return this.handleRequest(req, res, url);
                 });
 
                 app.listen(availablePort, () => {
@@ -95,7 +95,7 @@ module.exports = {
         });
         
     },
-    handleRequest(req, res){
+    handleRequest(req, res, url){
         const route = req.path === '/' ? '/index' : req.path;
 
         // First we are going to check if we have a content file in this location
@@ -110,6 +110,7 @@ module.exports = {
         }
 
         if (contentFile != null) {
+            contentFile = parser.parseURLs(contentFile, url);
             return res.send(contentFile);
         }
 
@@ -126,6 +127,8 @@ module.exports = {
         }
 
         if (pageContent != null) {
+            pageContent = parser.parseURLs(pageContent, url);
+            
             return res.send(pageContent);
         }
 
