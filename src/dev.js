@@ -28,6 +28,21 @@ module.exports = {
 
             // get available port for the Live Reload Server
             this.getAvailablePort(liveReloadDefaultPort).then((liveReloadAvailablePort) => {
+
+                let staticJSON = {};
+
+                const staticJsonPath = path.join(currentDirectory, 'static.json');
+                if (fs.existsSync(staticJsonPath)) {
+                    const staticJsonContent = fs.readFileSync(staticJsonPath, 'utf8');
+                    staticJSON = JSON.parse(staticJsonContent);
+                }
+
+                if (staticJSON.hasOwnProperty('dev')) {
+                    console.log(staticJSON.dev.url);
+                    if(typeof(staticJSON.dev.url) != 'undefined'){
+                        url = staticJSON.dev.url;
+                    }
+                }
             
                 const liveReloadOptions = {
                     port: liveReloadAvailablePort,
@@ -46,15 +61,6 @@ module.exports = {
                         liveReloadServer.refresh("/");
                     }, 100);
                 });
-
-                // TODO: Allow user to specify setting headers in the dev server via a config file
-                let staticJSON = {};
-
-                const staticJsonPath = path.join(currentDirectory, 'static.json');
-                if (fs.existsSync(staticJsonPath)) {
-                    const staticJsonContent = fs.readFileSync(staticJsonPath, 'utf8');
-                    staticJSON = JSON.parse(staticJsonContent);
-                }
 
                 app.use(function(req, res, next) {
                     if (staticJSON.hasOwnProperty('headers')) {
