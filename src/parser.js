@@ -72,6 +72,9 @@ module.exports = {
 
         page = page.replace('</head>', attrTags + '\n</head>');
         page = page.replace('{content}', contentHTML);
+    
+        // this will add the ability to include src partials in your markdown
+        page = this.parseIncludeContent(page);
 
         return page;
 
