@@ -555,7 +555,16 @@ module.exports = {
                 const orderBy = attributes.orderBy.split(',').map(item => item.trim());
                 const valueA = a[orderBy[0]];
                 const valueB = b[orderBy[0]];
-                let direction = 'asc';
+                //let direction = 'asc';
+                // Check if the orderBy array has more than one element
+                if (orderBy.length > 1) {
+                    // If there is more than one element, assume the second element specifies the sort direction
+                    // Convert the direction to lower case and trim any whitespace
+                    direction = orderBy[1].toLowerCase().trim();
+                }else{
+                    // Check if orderSort is 'desc' and set direction to 'desc' if true, otherwise set to 'asc' as default
+                    direction = attributes.orderSort == 'desc' ? 'desc' : 'asc'
+                }
         
                 if (orderBy.length > 1) {
                     direction = orderBy[1].toLowerCase().trim();
