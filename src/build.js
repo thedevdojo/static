@@ -47,7 +47,18 @@ function removeDirectory(dirPath) {
 }
 
 function buildPages(pagesDir, buildDir, url) {
+    paginationList = [];
+    // check if it's pagination page
+    const staticJsonPath = path.join(currentDirectory, 'static.json');
+    if (fs.existsSync(staticJsonPath)) {
+        const staticJsonContent = fs.readFileSync(staticJsonPath, 'utf8');
+        staticJSON = JSON.parse(staticJsonContent);
+        if (staticJSON.hasOwnProperty('paginationList')) {
+            paginationList = staticJSON.paginationList
+        }
+    }
     const entries = fs.readdirSync(pagesDir, { withFileTypes: true });
+
     for (const entry of entries) {
         const entryPath = path.join(pagesDir, entry.name);
         if (entry.isDirectory()) {
@@ -55,7 +66,15 @@ function buildPages(pagesDir, buildDir, url) {
             fs.mkdirSync(newBuildDir, { recursive: true });
             buildPages(entryPath, newBuildDir, url);
         } else if (entry.isFile() && entry.name.endsWith('.html')) {
-            buildFile(entryPath, buildDir, url);
+            routeBaseName = path.basename(entry.name,'.html')
+            // check this route in static.json
+            let pagination = getPageSizeForRoute("/" + routeBaseName, paginationList)
+            
+            if ( paginationList == [] || !pagination ){
+                buildFile(entryPath, buildDir, url);
+            }else{
+                buildPaginationFile(entryPath, buildDir, url, routeBaseName, pagination);
+            }
         }
     }
 }
@@ -122,4 +141,38 @@ function buildFile(filePath, buildDir, url){
     if(content != null){
         fs.writeFileSync(filePath, content);
     }
+}
+function buildPaginationFile(filePath, buildDir, url, keyName, pagination){
+    containsMagicLast = false
+    pageNo = 0;
+    while (!containsMagicLast){
+        pageContent = parser.processFile(filePath, true, url, pageNo, pagination)
+        pageContent = parser.parseURLs(pageContent, url);
+        if ( pageContent.includes("<div id='last-page-marker'></div>")){
+            containsMagicLast = true
+        }
+        if (pageNo == 5){
+            containsMagicLast = true
+        }
+        // Generate the file path for the current page
+        let pageFileDir = path.join(buildDir, keyName, 'pgn', `${pageNo}`);
+        fs.mkdirSync(pageFileDir, { recursive: true });
+        fs.writeFileSync(path.join(pageFileDir, 'index.html'), pageContent);
+        // 额外为page0设置非/pgn的访问
+        if (pageNo == 0){
+            const newBuildDir = path.join(buildDir, keyName);
+            fs.writeFileSync(path.join(newBuildDir, 'index.html'), pageContent);
+        }
+        pageNo ++
+
+    }
+    
+}
+function getPageSizeForRoute(routeToCheck, paginationList) {
+    // Use the Array.prototype.find() method to find the first object that matches the given route.
+    const item = paginationList.find(item => item.route === routeToCheck);
+
+    // Check if an item was found with the specified route; if so, return its pageSize.
+    // If no item is found (item is undefined), return null.
+    return item ? item : null;
 }

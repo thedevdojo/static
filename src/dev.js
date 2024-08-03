@@ -96,7 +96,7 @@ module.exports = {
         
     },
     handleRequest(req, res, url){
-        const route = req.path === '/' ? '/index' : req.path;
+        let route = req.path === '/' ? '/index' : req.path;
 
         // First we are going to check if we have a content file in this location
         let contentPath = path.join(currentDirectory, './content', route + '.md');
@@ -114,21 +114,50 @@ module.exports = {
             return res.send(contentFile);
         }
 
-        // If we made it this far we want to now check if the static html file exists
+        // Handle pagination if specified in 'static.json'.
+        paginationList = [];
+        const staticJsonPath = path.join(currentDirectory, 'static.json');
+        if (fs.existsSync(staticJsonPath)) {
+            const staticJsonContent = fs.readFileSync(staticJsonPath, 'utf8');
+            staticJSON = JSON.parse(staticJsonContent);
+            if (staticJSON.hasOwnProperty('paginationList')) {
+                paginationList = staticJSON.paginationList
+            }
+        }
 
+        // Regex to extract page number from the route.
+        let pageNo = null;
+        const pageRegex = /\/pgn\/(\d+)/;
+        isPaginationRoute = false;
+        const containsPageNo = route.match(pageRegex); //  route = /posts/page/0
+        if ( containsPageNo ){
+            pageNo = parseInt(containsPageNo[1], 10);
+            isPaginationRoute = true
+            route = route.replace(pageRegex, '')
+        }
+
+        // Check for pagination details in the static JSON configuration.
+        let pagination = this.getPageSizeForRoute(route, paginationList)
+
+        if ( isPaginationRoute || pagination ){
+            pageNo = isPaginationRoute ? pageNo : 0
+        }
+
+        // Define paths to page files based on the current directory and the route.
         let pagePath = path.join(currentDirectory, './pages', route + '.html');
         let pagePathIndex = path.join(currentDirectory, './pages', route, '/index.html');
         let pageContent = null;
 
+        // Check if the specified HTML file or its index exists and process it if found.
         if (fs.existsSync(pagePath)) {
-            pageContent = parser.processFile(pagePath);
+            pageContent = parser.processFile(pagePath, false, 'relative', pageNo, pagination);
+
         } else if(fs.existsSync(pagePathIndex)) {
-            pageContent = parser.processFile(pagePathIndex);
+            pageContent = parser.processFile(pagePathIndex, false, 'relative', pageNo, pagination);
         }
 
         if (pageContent != null) {
             pageContent = parser.parseURLs(pageContent, url);
-            
             return res.send(pageContent);
         }
 
@@ -165,5 +194,13 @@ module.exports = {
     
             server.listen(port);
         });
+    },
+    getPageSizeForRoute(routeToCheck, paginationList) {
+        // Use the Array.prototype.find() method to find the first object that matches the given route.
+        const item = paginationList.find(item => item.route === routeToCheck);
+
+        // Check if an item was found with the specified route; if so, return its pageSize.
+        // If no item is found (item is undefined), return null.
+        return item ? item : null;
     }
 }

@@ -8,9 +8,8 @@ let isContentFile = false;
 let env = require('./env.js');
 
 module.exports = {
-    processFile(filePath, build=false, url='relative') {
-
-
+    processFile(filePath, build=false, url='relative', pageNo=null, pagination=null) {
+        
         let page = this.getPage(filePath);
     
         const layoutTagExists = /<layout[^>]*>[\s\S]*?<\/layout>/.test(page);
@@ -30,8 +29,10 @@ module.exports = {
 
             // replace {slot} with content inside of Layout
             layout = layout.replace('{slot}', this.parseIncludeContent(this.getPageContent(page)));
+            
+            processedContentLoops = this.processContentLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build), filePath);
 
-            page = this.processCollectionLoops(this.processContentLoops(this.parseShortCodes(this.replaceAttributesInLayout(layout, layoutAttributes), url, build), filePath), filePath);
+            page = this.processCollectionLoops(processedContentLoops, filePath, pageNo, pagination);
 
             page = this.processCollectionJSON(page);
         }
@@ -450,70 +451,117 @@ module.exports = {
         fs.writeFileSync(filePath, jsonData);
     },
 
-    processCollectionLoops(template, filePath) {
+    processCollectionLoops(template, filePath, pageNo, pagination) {
+        const { route, pageSize, iteratorKey } = pagination || {};  // Destructure pagination details
+    
         // Regular expression to capture the ForEach sections
         const loopRegex = /<ForEach\s+([^>]+)>([\s\S]*?)<\/ForEach>/g;
     
-        let match;
+        // Define regex to match <paginator> tag and its content
+        // const paginatorRegex = /<paginator>([\s\S]*?)<\/paginator>/;
+        const paginatorRegex = /(?<!<!--\s*)<paginator>([\s\S]*?)<\/paginator>(?!\s*-->)/;
+    
+        // Extract paginator inner content
+        const extractedContentMatch = template.match(paginatorRegex);
+        let extractedPaginator = extractedContentMatch ? extractedContentMatch[1].trim() : null;
+        
+        // Remove <paginator> tag and its content from the template
+        template = template.replace(paginatorRegex, '').trim();
+    
         while ((match = loopRegex.exec(template)) !== null) {
-            const attributeString = match[1];
-            const loopBody = match[2];
-
+            const attributeString = match[1];  // Extract attributes string
+            const loopBody = match[2];         // Extract loop body content
+    
             const attributes = this.forEachAttributesAndValues('<ForEach ' + attributeString + '>');
-    
-            // Extract the collection name from the attributes
-            //const collectionNameMatch = /collection="([^"]+)"/.exec(attributeString);
-            if (!attributes.collection) {
-                continue; // Skip if collection name is not found
-            }
             
+            // Continue if the collection name is not found in attributes
+            if (!attributes.collection) {
+                continue;
+            }
     
-            // Load the corresponding JSON file
+            // Load JSON data from specified file
             let jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/collections/', `${attributes.collection}.json`), 'utf8'));
+    
+            // Determine the loop keyword, default to collection name
+            let loopKeyword = attributes.as || attributes.collection.replace(/\//g, '.');
 
-            let loopKeyword = attributes.collection.replace(/\//g, '.');
-            if (attributes.as) {
-                loopKeyword = attributes.as;
+             // Target the specific ForEach loop based on iteratorKey
+            const targetForEach = attributes.iteratorKey && attributes.iteratorKey === iteratorKey;
+    
+            let count = attributes.count || null;  // Maximum items to process, if specified
+
+            jsonData = this.handleOrderBy(jsonData, attributes);  // Apply sorting to data
+
+            let paginationHtml = ""
+            const generatePgn = targetForEach && pageSize != null && pageNo != null
+
+            // slice the jsonData and generate paginator content
+            if (generatePgn) {
+                const { pageData, isFirstPage, isLastPage } = this.paginateData(jsonData, pageSize, pageNo); //slice
+                jsonData = pageData;
+
+                // Generate pagination links
+                const { prevLink, nextLink } = this.generatePaginationLinks(isFirstPage, isLastPage, pageNo, '/posts/pgn/');
+                if (extractedPaginator != null 
+                    && extractedPaginator.includes("prev") 
+                    && extractedPaginator.includes("next") ){
+
+                        paginationHtml = extractedPaginator.replace("prev", prevLink).replace("next", nextLink);
+                    }
+    
+                if (isLastPage) {
+                    paginationHtml += "<div id='last-page-marker'></div>";  // Add a marker for the last page
+                }
+
             }
-
-            let count = null;
-            if(attributes.count){
-                count = attributes.count;
-            }
-
-            jsonData = this.handleOrderBy(jsonData, attributes);
-
             let loopResult = '';
             let loop = 1;
             for (const item of jsonData) {
                 let processedBody = loopBody;
-                const data = { ...item, loop };
+                const data = { ...item, loop };  // Merge item data with loop index
 
-                // Process conditions
+                // Process conditions and placeholders
                 processedBody = this.processConditions(processedBody, data, loopKeyword, loop);
-    
+
                 for (const key in item) {
-                    // Regular expression to replace the placeholders
                     const placeholderRegex = new RegExp(`{${loopKeyword}.${key}}`, 'g');
-                    let itemValue = item[key];
-                    if (Array.isArray(item[key])) {
-                        itemValue = item[key].join("|");
-                    }
+                    let itemValue = Array.isArray(item[key]) ? item[key].join("|") : item[key];
                     processedBody = processedBody.replace(placeholderRegex, itemValue);
                 }
-    
+
                 loopResult += processedBody;
                 loop++;
 
-                if((loop-1) == count){
-                    break;
+                if ((loop - 1) == count) {
+                    break;  // Stop processing if count limit is reached
                 }
             }
-    
+
+            // add the paginationHtml
+            if ( generatePgn ){
+                loopResult += paginationHtml
+            }
             template = template.replace(match[0], loopResult);
+                
+        
         }
     
         return template;
+    },
+    paginateData(jsonData, pageSize, pageNo) {
+        const totalPages = Math.ceil(jsonData.length / pageSize);  // Calculate total pages
+        const startIndex = pageNo * pageSize;                     // Compute start index for slicing
+        const endIndex = startIndex + pageSize;                   // Compute end index for slicing
+        const pageData = jsonData.slice(startIndex, endIndex);     // Extract data for the current page
+        const isLastPage = pageNo === totalPages - 1;              // Check if it is the last page
+        const isFirstPage = pageNo === 0;                          // Check if it is the first page
+    
+        return { pageData, isFirstPage, isLastPage, totalPages };
+    },
+    generatePaginationLinks(isFirstPage, isLastPage, pageNo, baseUrl) {
+        let prevLink = isFirstPage ? `style='visibility: hidden;'` : `href='${baseUrl}${pageNo - 1}'`;  // Generate previous page link
+        let nextLink = isLastPage ? `style='visibility: hidden;'` : `href='${baseUrl}${pageNo + 1}'`;   // Generate next page link
+        return { prevLink, nextLink };
     },
 
     processConditions(content, data, parentCollection) {
@@ -555,6 +603,7 @@ module.exports = {
                 const orderBy = attributes.orderBy.split(',').map(item => item.trim());
                 const valueA = a[orderBy[0]];
                 const valueB = b[orderBy[0]];
+
                 //let direction = 'asc';
                 // Check if the orderBy array has more than one element
                 if (orderBy.length > 1) {
@@ -564,10 +613,6 @@ module.exports = {
                 }else{
                     // Check if orderSort is 'desc' and set direction to 'desc' if true, otherwise set to 'asc' as default
                     direction = attributes.orderSort == 'desc' ? 'desc' : 'asc'
-                }
-        
-                if (orderBy.length > 1) {
-                    direction = orderBy[1].toLowerCase().trim();
                 }
         
                 if (typeof valueA === 'string' && typeof valueB === 'string') {
