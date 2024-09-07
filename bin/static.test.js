@@ -27,11 +27,7 @@ describe('bin/static CLI', () => {
     });
 
     it('should build project', () => {
-        console.log('Output:', output);
-        console.log('Current Directory:', process.cwd());
-        console.log('Directory Contents:', executeCommand('ls -al'));
-
-        // const output = executeCommand('cd testProject/static-starter-main && ../../bin/static build relative');
+        const output = executeCommand('cd testProject/static-starter-main && ../../bin/static build relative');
         console.log('Output:', output);
         console.log('Current Directory:', process.cwd());
         console.log('Directory Contents:', executeCommand('ls -al'));
