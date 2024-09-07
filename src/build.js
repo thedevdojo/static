@@ -7,19 +7,39 @@ const url = 'relative';
 
 module.exports = {
     start(url='relative'){
+
+        let staticJSON = {};
+
+        const staticJsonPath = path.join(currentDirectory, 'static.json');
+        if (fs.existsSync(staticJsonPath)) {
+            const staticJsonContent = fs.readFileSync(staticJsonPath, 'utf8');
+            staticJSON = JSON.parse(staticJsonContent);
+        }
+
+        if (staticJSON.hasOwnProperty('build')) {
+            if(typeof(staticJSON.build.url) != 'undefined'){
+                url = staticJSON.build.url;
+            }
+        }
         
         const pagesDir = path.join(currentDirectory, './pages');
         const contentPagesDir = path.join(currentDirectory, './content');
-        const buildDir = path.join(currentDirectory, './_site');
+        let buildDir = path.join(currentDirectory, './_site');
+
+        if (staticJSON.hasOwnProperty('build')) {
+            if(typeof(staticJSON.build.directory) != 'undefined'){
+                buildDir = staticJSON.build.directory;
+            }
+        }
 
         if (fs.existsSync(buildDir)) {
             removeDirectory(buildDir);
         }
 
-        assets.buildJSFile(true);
-        assets.buildTailwindCSS();
-        assets.moveImages();
-        assets.movePublicFoderContents();
+        assets.buildJSFile(true, buildDir);
+        assets.buildTailwindCSS(buildDir);
+        assets.moveImages(buildDir);
+        assets.movePublicFolderContents(buildDir);
 
         fs.mkdirSync(buildDir, { recursive: true });
         buildPages(pagesDir, buildDir, url);
