@@ -17,7 +17,7 @@ describe('bin/static CLI', () => {
         const output = executeCommand('./bin/static new testProject');
         const expectedOutput = [
             "New setup initialized",
-            "Downloading static starter template",
+            "Downloading starter template",
             "Finished downloading template",
             "Extracting template zip file",
             "Finished unzipping",
@@ -27,7 +27,7 @@ describe('bin/static CLI', () => {
     });
 
     it('should build project', () => {
-        const output = executeCommand('cd testProject/static-starter-main && ../../bin/static build relative');
+        const output = executeCommand('cd testProject && ../bin/static build relative');
         console.log('Output:', output);
         console.log('Current Directory:', process.cwd());
         console.log('Directory Contents:', executeCommand('ls -al'));
