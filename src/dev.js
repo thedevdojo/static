@@ -127,7 +127,9 @@ module.exports = {
 
         // Regex to extract page number from the route.
         let pageNo = null;
-        const pageRegex = /\/pgn\/(\d+)/;
+        // const pageRegex = /\/pgn\/(\d+)/;
+        const pageRegex = /\/(\d+)/;
+
         isPaginationRoute = false;
         const containsPageNo = route.match(pageRegex); //  route = /posts/page/0
         if ( containsPageNo ){

@@ -453,7 +453,7 @@ module.exports = {
 
     processCollectionLoops(template, filePath, pageNo, pagination) {
         const { route, pageSize, iteratorKey } = pagination || {};  // Destructure pagination details
-    
+
         // Regular expression to capture the ForEach sections
         const loopRegex = /<ForEach\s+([^>]+)>([\s\S]*?)<\/ForEach>/g;
     
@@ -501,7 +501,11 @@ module.exports = {
                 jsonData = pageData;
 
                 // Generate pagination links
-                const { prevLink, nextLink } = this.generatePaginationLinks(isFirstPage, isLastPage, pageNo, '/posts/pgn/');
+                // const { prevLink, nextLink } = this.generatePaginationLinks(isFirstPage, isLastPage, pageNo, '/posts/');
+                routeMatch = route.endsWith('/') ? route : route + '/'
+                
+                const { prevLink, nextLink } = this.generatePaginationLinks(isFirstPage, isLastPage, pageNo, routeMatch);
+
                 if (extractedPaginator != null 
                     && extractedPaginator.includes("prev") 
                     && extractedPaginator.includes("next") ){

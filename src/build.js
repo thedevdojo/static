@@ -155,10 +155,12 @@ function buildPaginationFile(filePath, buildDir, url, keyName, pagination){
             containsMagicLast = true
         }
         // Generate the file path for the current page
-        let pageFileDir = path.join(buildDir, keyName, 'pgn', `${pageNo}`);
+        // let pageFileDir = path.join(buildDir, keyName, 'pgn', `${pageNo}`);
+        let pageFileDir = path.join(buildDir, keyName, `${pageNo}`);
+
         fs.mkdirSync(pageFileDir, { recursive: true });
         fs.writeFileSync(path.join(pageFileDir, 'index.html'), pageContent);
-        // 额外为page0设置非/pgn的访问
+        // default : no /pageNo
         if (pageNo == 0){
             const newBuildDir = path.join(buildDir, keyName);
             fs.writeFileSync(path.join(newBuildDir, 'index.html'), pageContent);
