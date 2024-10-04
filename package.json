@@ -44,7 +44,7 @@
     "jest": "^29.7.0",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.3",
-    "tailwindcss": "^3.3.3"
+    "tailwindcss": "^3.4.*"
   },
   "author": "Tony Lea",
   "license": "ISC",
