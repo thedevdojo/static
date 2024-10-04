@@ -55,7 +55,6 @@ module.exports = {
             console.error("Error compling tailwindcss:");
             console.error(err);
             }
-            console.log('it happened');
             console.log(stdout);
         });
         
