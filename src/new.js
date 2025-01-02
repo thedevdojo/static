@@ -3,7 +3,6 @@ const request = require('superagent');
 const globalModulesPath = require("global-modules-path");
 const process = require('process');
 const admZip = require('adm-zip');
-var mv = require('mv');
 const { exec } = require("child_process");
 const openurl = require('openurl');
 const path = require('path');
@@ -65,39 +64,40 @@ module.exports = {
                         throw new Error('Template directory not found after extraction');
                     }
 
-                    mv(sourceDir, process.cwd(), {mkdirp: false, clobber: false}, function(err) {
+                    // Move contents of source directory to current directory
+                    const files = fs.readdirSync(sourceDir);
+                    for (const file of files) {
+                        const sourcePath = path.join(sourceDir, file);
+                        const destPath = path.join(process.cwd(), file);
+                        fs.moveSync(sourcePath, destPath, { overwrite: true });
+                    }
+                    fs.removeSync(sourceDir);
+
+                    console.log('New site available inside ' + folderName + ' folder');
+
+                    if (process.env.NODE_ENV === 'test') {
+                        resolve();
+                        return;
+                    }
+
+                    // Start dev server for non-test environment
+                    const devServer = require(require("global-modules-path").getPath("@devdojo/static") + '/src/dev.js');
+                    
+                    console.log('processing template builds and starting dev server');
+                    exec("cd " + process.cwd() + " && npm install && static build", (err, stdout, stderr) => {
                         if (err) {
-                            console.error('Failed to move template files:', err);
+                            console.error("Error building assets, please re-run static dev command.");
+                            console.error(err);
                             reject(err);
                             return;
                         }
 
-                        console.log('New site available inside ' + folderName + ' folder');
-
-                        if (process.env.NODE_ENV === 'test') {
-                            resolve();
-                            return;
-                        }
-
-                        // Start dev server for non-test environment
-                        const devServer = require(require("global-modules-path").getPath("@devdojo/static") + '/src/dev.js');
-                        
-                        console.log('processing template builds and starting dev server');
-                        exec("cd " + process.cwd() + " && npm install && static build", (err, stdout, stderr) => {
-                            if (err) {
-                                console.error("Error building assets, please re-run static dev command.");
-                                console.error(err);
-                                reject(err);
-                                return;
-                            }
-
-                            devServer.start(false)
-                                .then((port) => {
-                                    openurl.open('http://localhost:' + port);
-                                    resolve();
-                                })
-                                .catch(reject);
-                        });
+                        devServer.start(false)
+                            .then((port) => {
+                                openurl.open('http://localhost:' + port);
+                                resolve();
+                            })
+                            .catch(reject);
                     });
                 } catch (err) {
                     console.error('Failed during template extraction:', err);
