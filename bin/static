@@ -19,10 +19,18 @@ if(cmd == 'new'){
     var newCmd = require('../src/new.js');
     if(arg2 != undefined){
         template = arg2.replace('--template=', '');
-        newCmd.newProject(arg1, template);
+        newCmd.newProject(arg1, template)
+            .catch(err => {
+                console.error('Failed to create new project:', err);
+                process.exit(1);
+            });
         return;
     }
-    newCmd.newProject(arg1);
+    newCmd.newProject(arg1)
+        .catch(err => {
+            console.error('Failed to create new project:', err);
+            process.exit(1);
+        });
 }
 
 if(cmd == 'dev'){

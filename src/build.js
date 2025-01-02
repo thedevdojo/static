@@ -6,7 +6,7 @@ const assets = require('./assets.js');
 const url = 'relative';
 
 module.exports = {
-    start(url='relative'){
+    start(url = 'relative') {
 
         let staticJSON = {};
 
@@ -17,17 +17,17 @@ module.exports = {
         }
 
         if (staticJSON.hasOwnProperty('build')) {
-            if(typeof(staticJSON.build.url) != 'undefined'){
+            if (typeof(staticJSON.build.url) != 'undefined') {
                 url = staticJSON.build.url;
             }
         }
-        
+
         const pagesDir = path.join(currentDirectory, './pages');
         const contentPagesDir = path.join(currentDirectory, './content');
         let buildDir = path.join(currentDirectory, './_site');
 
         if (staticJSON.hasOwnProperty('build')) {
-            if(typeof(staticJSON.build.directory) != 'undefined'){
+            if (typeof(staticJSON.build.directory) != 'undefined') {
                 buildDir = staticJSON.build.directory;
             }
         }
@@ -41,7 +41,9 @@ module.exports = {
         assets.moveImages(buildDir);
         assets.movePublicFolderContents(buildDir);
 
-        fs.mkdirSync(buildDir, { recursive: true });
+        fs.mkdirSync(buildDir, {
+            recursive: true
+        });
         buildPages(pagesDir, buildDir, url);
         buildContentPages(contentPagesDir, buildDir, url);
 
@@ -67,12 +69,16 @@ function removeDirectory(dirPath) {
 }
 
 function buildPages(pagesDir, buildDir, url) {
-    const entries = fs.readdirSync(pagesDir, { withFileTypes: true });
+    const entries = fs.readdirSync(pagesDir, {
+        withFileTypes: true
+    });
     for (const entry of entries) {
         const entryPath = path.join(pagesDir, entry.name);
         if (entry.isDirectory()) {
             const newBuildDir = path.join(buildDir, entry.name);
-            fs.mkdirSync(newBuildDir, { recursive: true });
+            fs.mkdirSync(newBuildDir, {
+                recursive: true
+            });
             buildPages(entryPath, newBuildDir, url);
         } else if (entry.isFile() && entry.name.endsWith('.html')) {
             buildFile(entryPath, buildDir, url);
@@ -80,18 +86,22 @@ function buildPages(pagesDir, buildDir, url) {
     }
 }
 
-function buildContentPages(contentDir, buildDir, url){
+function buildContentPages(contentDir, buildDir, url) {
 
     if (!fs.existsSync(contentDir)) {
         return;
     }
-    
-    const entries = fs.readdirSync(contentDir, { withFileTypes: true });
+
+    const entries = fs.readdirSync(contentDir, {
+        withFileTypes: true
+    });
     for (const entry of entries) {
         const entryPath = path.join(contentDir, entry.name);
         if (entry.isDirectory()) {
             const newBuildDir = path.join(buildDir, entry.name);
-            fs.mkdirSync(newBuildDir, { recursive: true });
+            fs.mkdirSync(newBuildDir, {
+                recursive: true
+            });
             buildContentPages(entryPath, newBuildDir, url);
         } else if (entry.isFile() && entry.name.endsWith('.md')) {
             buildFile(entryPath, buildDir, url);
@@ -100,21 +110,23 @@ function buildContentPages(contentDir, buildDir, url){
 
 }
 
-function buildFile(filePath, buildDir, url){
+function buildFile(filePath, buildDir, url) {
 
     let content = null;
 
     // Processing for Content Pages
-    if(filePath.endsWith('.md')){
+    if (filePath.endsWith('.md')) {
         content = parser.processContent(filePath, true, url);
         if (!filePath.endsWith('index.md')) {
             const folderName = path.basename(filePath, '.md');
             const folderPath = path.join(buildDir, folderName);
-            fs.mkdirSync(folderPath, { recursive: true });
+            fs.mkdirSync(folderPath, {
+                recursive: true
+            });
             filePath = path.join(folderPath, 'index.html');
         } else {
             filePath = path.join(buildDir, path.basename(filePath));
-            if(filePath.endsWith('index.md')){
+            if (filePath.endsWith('index.md')) {
                 filePath = filePath.replace('index.md', 'index.html');
             }
         }
@@ -123,14 +135,16 @@ function buildFile(filePath, buildDir, url){
         content = parser.processFile(filePath, true, url);
 
         // ignore content pages
-        if(filePath.endsWith('[content].html')){
+        if (filePath.endsWith('[content].html')) {
             return;
         }
 
         if (!filePath.endsWith('index.html')) {
             const folderName = path.basename(filePath, '.html');
             const folderPath = path.join(buildDir, folderName);
-            fs.mkdirSync(folderPath, { recursive: true });
+            fs.mkdirSync(folderPath, {
+                recursive: true
+            });
             filePath = path.join(folderPath, 'index.html');
         } else {
             filePath = path.join(buildDir, path.basename(filePath));
@@ -139,7 +153,7 @@ function buildFile(filePath, buildDir, url){
 
     content = parser.parseURLs(content, url);
 
-    if(content != null){
+    if (content != null) {
         fs.writeFileSync(filePath, content);
     }
 }
