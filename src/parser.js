@@ -1,24 +1,24 @@
 const fs = require('fs');
 const path = require('path');
 const currentDirectory = process.cwd();
-let showdown  = require('showdown');
+let showdown = require('showdown');
 let toc = require('markdown-toc');
 let fm = require('front-matter');
 let isContentFile = false;
 let env = require('./env.js');
 
 module.exports = {
-    processFile(filePath, build=false, url='relative') {
+    processFile(filePath, build = false, url = 'relative') {
 
 
         let page = this.getPage(filePath);
-    
+
         const layoutTagExists = /<layout[^>]*>[\s\S]*?<\/layout>/.test(page);
 
         if (layoutTagExists) {
             layoutAttributes = this.getLayoutAttributes(page);
-            
-            if(typeof layoutAttributes.src == 'undefined'){
+
+            if (typeof layoutAttributes.src == 'undefined') {
                 throw new Error('Layout Tag must include a src');
             }
 
@@ -39,7 +39,7 @@ module.exports = {
         return page;
     },
 
-    processContent(contentPath, build=false, url='relative') {
+    processContent(contentPath, build = false, url = 'relative') {
 
         let content = fs.readFileSync(contentPath, 'utf8');
 
@@ -63,16 +63,16 @@ module.exports = {
         page = this.processFrontMatterConditions(page, contentAttributes);
         page = this.processFrontMatterReplacements(page, contentAttributes);
 
-        
 
-        if(page.includes('{static_content_element}')){
+
+        if (page.includes('{static_content_element}')) {
             let staticContentElement = "<div id='static-content' style='display:none;' data-toc='" + JSON.stringify(tableOfContents.json).replace(/'/g, "\\'") + "' data-frontmatter='" + JSON.stringify(contentAttributes).replace(/'/g, "\\'") + "'></div>";
             page = page.replace('{static_content_element}', staticContentElement);
         }
 
         page = page.replace('</head>', attrTags + '\n</head>');
         page = page.replace('{content}', contentHTML);
-    
+
         // this will add the ability to include src partials in your markdown
         page = this.parseIncludeContent(page);
 
@@ -82,10 +82,10 @@ module.exports = {
 
     processFrontMatterReplacements(content, data) {
         const placeholderRegex = /{frontmatter\.([^}]+)}/g;
-        
+
         return content.replace(placeholderRegex, (match, key) => {
             if (data.hasOwnProperty(key)) {
-            return data[key];
+                return data[key];
             }
             return match; // If the key doesn't exist in data, don't replace.
         });
@@ -93,24 +93,26 @@ module.exports = {
 
     processFrontMatterConditions(content, data) {
         const conditionRegex = /<If condition="([^"]+)">([\s\S]*?)<\/If>/g;
-    
+
         return content.replace(conditionRegex, (match, condition, body) => {
             // Evaluate the condition using the frontmatter data
-            const evalContext = { frontmatter: data };
+            const evalContext = {
+                frontmatter: data
+            };
             let meetsCondition = false;
-    
+
             try {
                 const evalFunction = new Function('data', `with(data) { return ${condition}; }`);
                 meetsCondition = evalFunction(evalContext);
             } catch (err) {
                 console.warn(`Failed to evaluate condition: ${condition}`, err);
             }
-    
+
             return meetsCondition ? body : '';
         });
     },
 
-    processCollectionJSON(body){
+    processCollectionJSON(body) {
         const collectionRegex = /{collections\.([^}]+)\.json}/g;
         let match;
         while ((match = collectionRegex.exec(body)) !== null) {
@@ -168,33 +170,33 @@ module.exports = {
         const match = page.match(pageTagRegex);
 
         if (match) {
-          const src = match[1];
-          const filePath = path.join(currentDirectory, './pages/', src);
-          const fileContent = fs.readFileSync(filePath, 'utf8');
-          page = fileContent;
+            const src = match[1];
+            const filePath = path.join(currentDirectory, './pages/', src);
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            page = fileContent;
         }
-      
+
         return page;
     },
     removeFrontMatter(markdownContent) {
         const frontMatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/;
         const match = markdownContent.match(frontMatterRegex);
-      
+
         if (match) {
-          const frontMatter = match[0];
-          const content = markdownContent.replace(frontMatter, '');
-          return content.trim();
+            const frontMatter = match[0];
+            const content = markdownContent.replace(frontMatter, '');
+            return content.trim();
         }
-      
+
         return markdownContent.trim();
     },
     parseURLs(html, URL) {
         const regex = /{ url\('([^']+)'\) }/g;
         return html.replace(regex, (match, url) => {
             if (URL === 'relative') {
-            return url;
+                return url;
             } else {
-            return URL.replace(/\/$/, '') + url;
+                return URL.replace(/\/$/, '') + url;
             }
         });
     },
@@ -202,40 +204,40 @@ module.exports = {
     getLayoutAttributes(page) {
         const layoutTagRegex = /<layout\s+([^>]*)>([\s\S]*?)<\/layout>/;
         const layoutTagMatch = page.match(layoutTagRegex);
-    
+
         if (layoutTagMatch) {
             const attributesString = layoutTagMatch[1];
             const attributesRegex = /(\w+)="([^"]*)"/g;
             let attributeMatch;
             let attributes = {};
-    
+
             while ((attributeMatch = attributesRegex.exec(attributesString)) !== null) {
                 attributes[attributeMatch[1]] = attributeMatch[2];
             }
-    
+
             return attributes;
         }
-    
+
         return null;
     },
 
     getIncludeAttributes(page) {
         const includeTagRegex = /<include\s+([^>]*)>([\s\S]*?)<\/include>/;
         const includeTagMatch = page.match(includeTagRegex);
-    
+
         if (includeTagMatch) {
             const attributesString = includeTagMatch[1];
             const attributesRegex = /(\w+)="([^"]*)"/g;
             let attributeMatch;
             let attributes = {};
-    
+
             while ((attributeMatch = attributesRegex.exec(attributesString)) !== null) {
                 attributes[attributeMatch[1]] = attributeMatch[2];
             }
-    
+
             return attributes;
         }
-    
+
         return null;
     },
 
@@ -250,46 +252,46 @@ module.exports = {
     getPageContent(page) {
         const layoutTagRegex = /<layout[^>]*>([\s\S]*?)<\/layout>/;
         const layoutTagMatch = page.match(layoutTagRegex);
-    
+
         if (layoutTagMatch) {
             return layoutTagMatch[1];
         }
-    
+
         return null;
     },
 
-    parseIncludeContent(htmlString){
+    parseIncludeContent(htmlString) {
 
         // while ((includeTag = includeRegex.exec(htmlString)) !== null) {
         //     const includeSrcPath = path.join(currentDirectory, '/includes/', includeTag[1]);
         //     const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
-        
+
         //     // Loop through the attributes of the include tag
         //     const attributeRegex = /(\w+)="([^"]+)"/g;
         //     let attributeMatch;
         //     while ((attributeMatch = attributeRegex.exec(includeTag[0])) !== null) {
         //         const attributeName = attributeMatch[1];
         //         const attributeValue = attributeMatch[2];
-        
+
         //         // Replace attribute placeholders with attribute values in the include content
         //         const attributePlaceholderRegex = new RegExp(`{${attributeName}}`, 'g');
         //         includeContent = includeContent.replace(attributePlaceholderRegex, attributeValue);
         //     }
-        
+
         //     htmlString = htmlString.replace(includeTag[0], includeContent);
         // }
         // return htmlString;
 
-        
+
 
         let includeTag;
         const includeRegex = /<include\s+[^>]*src="([^"]+)"[^>]*><\/include>/g;
 
-        
+
         while ((includeTag = includeRegex.exec(htmlString)) !== null) {
-            
+
             const includeSrcPath = path.join(currentDirectory, '/includes/', includeTag[1]);
-            
+
             let includeContent = fs.readFileSync(includeSrcPath, 'utf8');
 
             const includeAttributes = this.getIncludeAttributes(includeTag[0]);
@@ -303,16 +305,16 @@ module.exports = {
         return htmlString;
     },
 
-    parseShortCodes(content, url, build=false){
+    parseShortCodes(content, url, build = false) {
         // {tailwindcss} shortcode
         let assetURL = url.replace(/\/$/, '');
-        if(url == 'relative'){ 
-            assetURL = ''; 
+        if (url == 'relative') {
+            assetURL = '';
         }
         let tailwindReplacement = build ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
-        if(!build){
+        if (!build) {
             let moduleExportsContent = this.getModuleExportsContent();
-            
+
             // the inline config does not need the plugins array
             const regex = /plugins:\s*\[[^\]]*\]/g;
             moduleExportsContent = moduleExportsContent.replace(regex, 'plugins: []');
@@ -328,7 +330,7 @@ module.exports = {
             tailwindReplacement += `<style>${cssContent}</style>`;
         }
         content = content.replace('{tailwindcss}', tailwindReplacement);
-        
+
         return content;
     },
     getModuleExportsContent() {
@@ -339,14 +341,27 @@ module.exports = {
         return moduleExportsContent;
     },
 
-    processContentLoops(body, filePath){
+    processContentLoops(body, filePath) {
         const forEachContentTags = this.forEachContentTags(body);
-        for(i=0; i < forEachContentTags.length; i++){
+        for (i = 0; i < forEachContentTags.length; i++) {
             const attributesAndValues = this.forEachAttributesAndValues(forEachContentTags[i]);
-            const contentCollection = this.frontmatterLoops(currentDirectory + '/content/' + attributesAndValues.content);
+            let sortKey = 'date';
+            let sortDirection = 'desc';
+
+            if (attributesAndValues.orderBy) {
+                const [key, direction] = attributesAndValues.orderBy.split(',');
+                sortKey = key || 'date';
+                sortDirection = (direction || 'desc').toLowerCase();
+            }
+
+            const contentCollection = this.frontmatterLoops(
+                currentDirectory + '/content/' + attributesAndValues.content,
+                sortKey,
+                sortDirection
+            );
             this.storeContentCollection(attributesAndValues.content, contentCollection);
         }
-        return this.replaceForEachContentWithCollection( body );
+        return this.replaceForEachContentWithCollection(body);
     },
 
     replaceForEachContentWithCollection(body) {
@@ -355,13 +370,13 @@ module.exports = {
             const updatedAttributes = attributes.replace(/content="([^"]+)"/g, 'collection="content/$1"');
             //const updatedAttributes = attributes.replace(/content=/g, `collection="content/$&-index-${index}"`);
             //const updatedAttributes = attributes.replace(/content=/g, 'collection=');
-          return `<ForEach ${updatedAttributes}>`;
+            return `<ForEach ${updatedAttributes}>`;
         });
-      
+
         return updatedBody;
     },
 
-    frontmatterLoops(directoryPath, sortByKey = 'date', filePath = null) {
+    frontmatterLoops(directoryPath, sortByKey = 'date', sortDirection = 'desc', filePath = null) {
         const files = fs.readdirSync(directoryPath);
 
         const frontmatters = [];
@@ -376,7 +391,7 @@ module.exports = {
             // Extract the frontmatter from the markdown file
             const frontmatter = fm(fileContent).attributes; //fm.(fileContent, converter);
 
-            if(frontmatter.hasOwnProperty(sortByKey)){
+            if (frontmatter.hasOwnProperty(sortByKey)) {
                 hasSortByKey = true;
             }
 
@@ -386,14 +401,23 @@ module.exports = {
         });
 
         // Sort the frontmatters array by the specified key
-        if(hasSortByKey){
-            frontmatters.sort((a, b) => a[sortByKey].localeCompare(b[sortByKey]));
+        if (hasSortByKey) {
+            frontmatters.sort((a, b) => {
+                if (sortByKey === 'date') {
+                    const dateA = new Date(a[sortByKey]);
+                    const dateB = new Date(b[sortByKey]);
+                    return sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
+                }
+                return sortDirection === 'desc' ?
+                    b[sortByKey].localeCompare(a[sortByKey]) :
+                    a[sortByKey].localeCompare(b[sortByKey]);
+            });
         }
 
         return frontmatters;
     },
 
-    forEachAttributesAndValues(string){
+    forEachAttributesAndValues(string) {
         const regex = /<ForEach\s+([^>]+)>/g;
         const attributes = {};
 
@@ -426,16 +450,16 @@ module.exports = {
             let hasContentAttribute = false;
 
             while ((attributeMatch = attributeRegex.exec(attributeString)) !== null) {
-            const attributeName = attributeMatch[1];
-            const attributeValue = attributeMatch[2];
-            if (attributeName === 'content') {
-                hasContentAttribute = true;
-                break;
-            }
+                const attributeName = attributeMatch[1];
+                const attributeValue = attributeMatch[2];
+                if (attributeName === 'content') {
+                    hasContentAttribute = true;
+                    break;
+                }
             }
 
             if (hasContentAttribute) {
-            forEachTags.push(forEachTag);
+                forEachTags.push(forEachTag);
             }
         }
 
@@ -447,7 +471,7 @@ module.exports = {
         if (!fs.existsSync(contentCollectionFolderPath)) {
             fs.mkdirSync(contentCollectionFolderPath);
         }
-        
+
         const filePath = path.join(contentCollectionFolderPath, `${collectionName}.json`);
         const jsonData = JSON.stringify(collectionData, null, 2);
         fs.writeFileSync(filePath, jsonData);
@@ -456,21 +480,21 @@ module.exports = {
     processCollectionLoops(template, filePath) {
         // Regular expression to capture the ForEach sections
         const loopRegex = /<ForEach\s+([^>]+)>([\s\S]*?)<\/ForEach>/g;
-    
+
         let match;
         while ((match = loopRegex.exec(template)) !== null) {
             const attributeString = match[1];
             const loopBody = match[2];
 
             const attributes = this.forEachAttributesAndValues('<ForEach ' + attributeString + '>');
-    
+
             // Extract the collection name from the attributes
             //const collectionNameMatch = /collection="([^"]+)"/.exec(attributeString);
             if (!attributes.collection) {
                 continue; // Skip if collection name is not found
             }
-            
-    
+
+
             // Load the corresponding JSON file
             let jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/collections/', `${attributes.collection}.json`), 'utf8'));
 
@@ -480,7 +504,7 @@ module.exports = {
             }
 
             let count = null;
-            if(attributes.count){
+            if (attributes.count) {
                 count = attributes.count;
             }
 
@@ -490,11 +514,14 @@ module.exports = {
             let loop = 1;
             for (const item of jsonData) {
                 let processedBody = loopBody;
-                const data = { ...item, loop };
+                const data = {
+                    ...item,
+                    loop
+                };
 
                 // Process conditions
                 processedBody = this.processConditions(processedBody, data, loopKeyword, loop);
-    
+
                 for (const key in item) {
                     // Regular expression to replace the placeholders
                     const placeholderRegex = new RegExp(`{${loopKeyword}.${key}}`, 'g');
@@ -504,25 +531,25 @@ module.exports = {
                     }
                     processedBody = processedBody.replace(placeholderRegex, itemValue);
                 }
-    
+
                 loopResult += processedBody;
                 loop++;
 
-                if((loop-1) == count){
+                if ((loop - 1) == count) {
                     break;
                 }
             }
-    
+
             template = template.replace(match[0], loopResult);
         }
-    
+
         return template;
     },
 
     processConditions(content, data, parentCollection) {
         // Regular expression to capture the If sections
         const conditionRegex = /<If condition="([^"]+)">([\s\S]*?)<\/If>/g;
-    
+
         return content.replace(conditionRegex, (match, condition, body) => {
             // Convert placeholder {collectionName.key} into JavaScript context variables
             condition = condition.replace(/{([^}]+)\.([^}]+)}/g, (m, collection, key) => {
@@ -533,13 +560,15 @@ module.exports = {
                 }
                 return m; // If the collection doesn't match, don't replace.
             });
-    
+
             let meetsCondition = false;
-    
+
             // Prepare the evaluation context
             let evalContextNames = [parentCollection, ...Object.keys(data)];
-            let evalContextValues = [{ ...data }, ...Object.values(data)];
-    
+            let evalContextValues = [{
+                ...data
+            }, ...Object.values(data)];
+
             // Dynamically create a function with the condition and evaluate it
             try {
                 const evalFunction = new Function(...evalContextNames, `return ${condition};`);
@@ -547,43 +576,56 @@ module.exports = {
             } catch (err) {
                 console.warn(`Failed to evaluate condition: ${condition}`, err);
             }
-    
+
             return meetsCondition ? body : '';
         });
     },
 
-    handleOrderBy: function(jsonData, attributes){
+    handleOrderBy: function(jsonData, attributes) {
         if (attributes.orderBy) {
+            const parseDate = (dateStr) => {
+                if (!dateStr) return new Date(0);
+                // Remove ordinal indicators (st, nd, rd, th)
+                dateStr = dateStr.replace(/(\d+)(st|nd|rd|th)/, '$1');
+                return new Date(dateStr);
+            };
+
             jsonData.sort((a, b) => {
                 const orderBy = attributes.orderBy.split(',').map(item => item.trim());
-                const valueA = a[orderBy[0]];
-                const valueB = b[orderBy[0]];
-                let direction = 'asc';
-        
-                if (orderBy.length > 1) {
-                    direction = orderBy[1].toLowerCase().trim();
+                const key = orderBy[0];
+                const direction = orderBy.length > 1 ? orderBy[1].toLowerCase().trim() : 'asc';
+
+                if (key === 'date') {
+                    const dateA = parseDate(a[key]);
+                    const dateB = parseDate(b[key]);
+
+                    if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+                        const dateDiff = direction === 'desc' ? dateB - dateA : dateA - dateB;
+                        if (dateDiff === 0 && a.title && b.title) {
+                            return direction === 'desc' ?
+                                b.title.localeCompare(a.title) :
+                                a.title.localeCompare(b.title);
+                        }
+                        return dateDiff;
+                    }
                 }
-        
+
+                const valueA = a[key];
+                const valueB = b[key];
+
                 if (typeof valueA === 'string' && typeof valueB === 'string') {
-                    if (direction === 'desc') {
-                        return valueB.localeCompare(valueA);
-                    } else {
-                        return valueA.localeCompare(valueB);
-                    }
-                } else if (typeof valueA === 'number' && typeof valueB === 'number') {
-                    if (direction === 'desc') {
-                        return valueB - valueA;
-                    } else {
-                        return valueA - valueB;
-                    }
-                } else {
-                    return 0;
+                    return direction === 'desc' ?
+                        valueB.localeCompare(valueA) :
+                        valueA.localeCompare(valueB);
                 }
+                if (typeof valueA === 'number' && typeof valueB === 'number') {
+                    return direction === 'desc' ? valueB - valueA : valueA - valueB;
+                }
+                return 0;
             });
         }
-
         return jsonData;
     }
-    
-        
+
+
 }
