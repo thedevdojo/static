@@ -1,58 +1,58 @@
 {
-  "name": "@devdojo/static",
-  "version": "1.0.27",
-  "description": "Static Site Generator",
-  "main": "index.js",
-  "scripts": {
-    "dev": "concurrently --kill-others \"node index.js\" \"npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --watch\"",
-    "build": "node index.js --build && npx tailwindcss -i ./src/assets/css/main.css -o ./build/assets/css/main.css --minify && npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --minify",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/thedevdojo/static.git"
-  },
-  "keywords": [
-    "static",
-    "site",
-    "generator",
-    "static",
-    "site",
-    "generator"
-  ],
-  "dependencies": {
-    "adm-zip": "^0.5.10",
-    "concurrently": "^8.2.0",
-    "connect-livereload": "^0.6.1",
-    "dotenv": "^16.3.1",
-    "esbuild": "0.19.2",
-    "express": "^4.18.2",
-    "front-matter": "^4.0.2",
-    "fs-extra": "^11.1.1",
-    "global-modules-path": "^3.0.0",
-    "livereload": "^0.9.3",
-    "markdown-toc": "^1.2.0",
-    "mv": "^2.1.1",
-    "open": "^9.1.0",
-    "openurl": "^1.1.1",
-    "process": "^0.11.10",
-    "remarkable": "^2.0.1",
-    "showdown": "^2.1.0",
-    "superagent": "^8.1.2"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "nodemon": "^3.0.1",
-    "supertest": "^6.3.3",
-    "tailwindcss": "^3.4.*"
-  },
-  "author": "Tony Lea",
-  "license": "ISC",
-  "bin": {
-    "static": "bin/static"
-  },
-  "bugs": {
-    "url": "https://github.com/thedevdojo/static/issues"
-  },
-  "homepage": "https://github.com/thedevdojo/static#readme"
+    "name": "@devdojo/static",
+    "version": "1.0.29",
+    "description": "Static Site Generator",
+    "main": "index.js",
+    "scripts": {
+        "dev": "concurrently --kill-others \"node index.js\" \"npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --watch\"",
+        "build": "node index.js --build && npx tailwindcss -i ./src/assets/css/main.css -o ./build/assets/css/main.css --minify && npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --minify",
+        "test": "jest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/thedevdojo/static.git"
+    },
+    "keywords": [
+        "static",
+        "site",
+        "generator",
+        "static",
+        "site",
+        "generator"
+    ],
+    "dependencies": {
+        "adm-zip": "^0.5.10",
+        "concurrently": "^8.2.0",
+        "connect-livereload": "^0.6.1",
+        "dotenv": "^16.3.1",
+        "esbuild": "0.19.2",
+        "express": "^4.18.2",
+        "front-matter": "^4.0.2",
+        "fs-extra": "^11.1.1",
+        "global-modules-path": "^3.0.0",
+        "livereload": "^0.9.3",
+        "markdown-toc": "^1.2.0",
+        "mv": "^2.1.1",
+        "open": "^9.1.0",
+        "openurl": "^1.1.1",
+        "process": "^0.11.10",
+        "remarkable": "^2.0.1",
+        "showdown": "^2.1.0",
+        "superagent": "^8.1.2"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "nodemon": "^3.0.1",
+        "supertest": "^6.3.3",
+        "tailwindcss": "^3.4.*"
+    },
+    "author": "Tony Lea",
+    "license": "ISC",
+    "bin": {
+        "static": "bin/static"
+    },
+    "bugs": {
+        "url": "https://github.com/thedevdojo/static/issues"
+    },
+    "homepage": "https://github.com/thedevdojo/static#readme"
 }

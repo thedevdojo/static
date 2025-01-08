@@ -345,20 +345,7 @@ module.exports = {
         const forEachContentTags = this.forEachContentTags(body);
         for (i = 0; i < forEachContentTags.length; i++) {
             const attributesAndValues = this.forEachAttributesAndValues(forEachContentTags[i]);
-            let sortKey = 'date';
-            let sortDirection = 'desc';
-
-            if (attributesAndValues.orderBy) {
-                const [key, direction] = attributesAndValues.orderBy.split(',');
-                sortKey = key || 'date';
-                sortDirection = (direction || 'desc').toLowerCase();
-            }
-
-            const contentCollection = this.frontmatterLoops(
-                currentDirectory + '/content/' + attributesAndValues.content,
-                sortKey,
-                sortDirection
-            );
+            let contentCollection = this.frontmatterLoops(currentDirectory + '/content/' + attributesAndValues.content);
             this.storeContentCollection(attributesAndValues.content, contentCollection);
         }
         return this.replaceForEachContentWithCollection(body);
@@ -376,7 +363,7 @@ module.exports = {
         return updatedBody;
     },
 
-    frontmatterLoops(directoryPath, sortByKey = 'date', sortDirection = 'desc', filePath = null) {
+    frontmatterLoops(directoryPath, sortByKey = 'date', filePath = null) {
         const files = fs.readdirSync(directoryPath);
 
         const frontmatters = [];
@@ -402,16 +389,7 @@ module.exports = {
 
         // Sort the frontmatters array by the specified key
         if (hasSortByKey) {
-            frontmatters.sort((a, b) => {
-                if (sortByKey === 'date') {
-                    const dateA = new Date(a[sortByKey]);
-                    const dateB = new Date(b[sortByKey]);
-                    return sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
-                }
-                return sortDirection === 'desc' ?
-                    b[sortByKey].localeCompare(a[sortByKey]) :
-                    a[sortByKey].localeCompare(b[sortByKey]);
-            });
+            frontmatters.sort((a, b) => a[sortByKey].localeCompare(b[sortByKey]));
         }
 
         return frontmatters;
@@ -581,50 +559,57 @@ module.exports = {
         });
     },
 
-    handleOrderBy: function(jsonData, attributes) {
-        if (attributes.orderBy) {
-            const parseDate = (dateStr) => {
-                if (!dateStr) return new Date(0);
-                // Remove ordinal indicators (st, nd, rd, th)
-                dateStr = dateStr.replace(/(\d+)(st|nd|rd|th)/, '$1');
-                return new Date(dateStr);
-            };
+    handleOrderBy(jsonData, attributes) {
+        if (!attributes.orderBy) return jsonData;
 
-            jsonData.sort((a, b) => {
-                const orderBy = attributes.orderBy.split(',').map(item => item.trim());
-                const key = orderBy[0];
-                const direction = orderBy.length > 1 ? orderBy[1].toLowerCase().trim() : 'asc';
+        return jsonData.sort((a, b) => {
+            const orderBy = attributes.orderBy.split(',').map(item => item.trim());
+            const valueA = a[orderBy[0]];
+            const valueB = b[orderBy[0]];
+            let direction = 'asc';
 
-                if (key === 'date') {
-                    const dateA = parseDate(a[key]);
-                    const dateB = parseDate(b[key]);
+            if (orderBy.length > 1) {
+                direction = orderBy[1].toLowerCase().trim();
+            }
 
-                    if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
-                        const dateDiff = direction === 'desc' ? dateB - dateA : dateA - dateB;
-                        if (dateDiff === 0 && a.title && b.title) {
-                            return direction === 'desc' ?
-                                b.title.localeCompare(a.title) :
-                                a.title.localeCompare(b.title);
-                        }
-                        return dateDiff;
-                    }
+            // Special handling for dates
+            if (orderBy[0] === 'date') {
+                const parseDate = (dateStr) => {
+                    // Convert date strings to a consistent format
+                    const date = new Date(dateStr);
+                    // Return timestamp for invalid dates as 0 to put them at the start/end
+                    return isNaN(date.getTime()) ? 0 : date.getTime();
+                };
+
+                const timeA = parseDate(valueA);
+                const timeB = parseDate(valueB);
+
+                // For debugging
+                console.log(`Comparing dates: ${valueA} (${timeA}) vs ${valueB} (${timeB})`);
+
+                if (direction === 'desc') {
+                    return timeB - timeA;
+                } else {
+                    return timeA - timeB;
                 }
+            }
 
-                const valueA = a[key];
-                const valueB = b[key];
+            if (typeof valueA === 'string' && typeof valueB === 'string') {
+                if (direction === 'desc') {
+                    return valueB.localeCompare(valueA);
+                } else {
+                    return valueA.localeCompare(valueB);
+                }
+            } else if (typeof valueA === 'number' && typeof valueB === 'number') {
+                if (direction === 'desc') {
+                    return valueB - valueA;
+                } else {
+                    return valueA - valueB;
+                }
+            }
 
-                if (typeof valueA === 'string' && typeof valueB === 'string') {
-                    return direction === 'desc' ?
-                        valueB.localeCompare(valueA) :
-                        valueA.localeCompare(valueB);
-                }
-                if (typeof valueA === 'number' && typeof valueB === 'number') {
-                    return direction === 'desc' ? valueB - valueA : valueA - valueB;
-                }
-                return 0;
-            });
-        }
-        return jsonData;
+            return 0;
+        });
     }
 
 
