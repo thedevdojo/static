@@ -584,9 +584,6 @@ module.exports = {
                 const timeA = parseDate(valueA);
                 const timeB = parseDate(valueB);
 
-                // For debugging
-                console.log(`Comparing dates: ${valueA} (${timeA}) vs ${valueB} (${timeB})`);
-
                 if (direction === 'desc') {
                     return timeB - timeA;
                 } else {
