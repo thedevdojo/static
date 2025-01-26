@@ -50,7 +50,7 @@ module.exports = {
         }
     },
     buildTailwindCSS(buildDir = './_site'){
-        exec("npx tailwindcss@latest -i ./assets/css/main.css -o " + buildDir + "/assets/css/main.css --minify", (err, stdout, stderr) => {
+        exec("npx tailwindcss -i ./assets/css/main.css -o " + buildDir + "/assets/css/main.css --minify", (err, stdout, stderr) => {
             if (err) {
             console.error("Error compling tailwindcss:");
             console.error(err);
