@@ -7,7 +7,7 @@
         "dev": "concurrently --kill-others \"node index.js\" \"npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --watch\"",
         "build": "node index.js --build && npx tailwindcss -i ./src/assets/css/main.css -o ./build/assets/css/main.css --minify && npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --minify",
         "test": "jest",
-        "prepare": "npm install && npm run build"
+        "prepare": "npm install"
     },
     "repository": {
         "type": "git",
