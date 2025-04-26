@@ -311,15 +311,15 @@ module.exports = {
         }
         let tailwindReplacement = build ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
         if(!build){
-            let moduleExportsContent = this.getModuleExportsContent();
+            // let moduleExportsContent = this.getModuleExportsContent();
             
-            // the inline config does not need the plugins array
-            const regex = /plugins:\s*\[[^\]]*\]/g;
-            moduleExportsContent = moduleExportsContent.replace(regex, 'plugins: []');
-            moduleExportsContent = moduleExportsContent.replace('plugins: [],', '');
-            moduleExportsContent = moduleExportsContent.replace('plugins: []', '');
+            // // the inline config does not need the plugins array
+            // const regex = /plugins:\s*\[[^\]]*\]/g;
+            // moduleExportsContent = moduleExportsContent.replace(regex, 'plugins: []');
+            // moduleExportsContent = moduleExportsContent.replace('plugins: [],', '');
+            // moduleExportsContent = moduleExportsContent.replace('plugins: []', '');
 
-            tailwindReplacement += '<script>tailwind.config = ' + moduleExportsContent.replace(/;*$/, '') + '</script>';
+            // tailwindReplacement += '<script>tailwind.config = ' + moduleExportsContent.replace(/;*$/, '') + '</script>';
 
             // If it is not build we also want to grab the contents inside the main.css file and add it to the head
             let cssContent = fs.readFileSync(currentDirectory + '/assets/css/main.css', 'utf8');
