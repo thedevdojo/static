@@ -328,7 +328,7 @@ module.exports = {
             tailwindReplacement += `<style>${cssContent}</style>`;
         }
         content = content.replace('{tailwindcss}', tailwindReplacement);
-        
+
         return content;
     },
     getModuleExportsContent() {
