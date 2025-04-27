@@ -309,7 +309,7 @@ module.exports = {
         if(url == 'relative'){ 
             assetURL = ''; 
         }
-        let tailwindReplacement = build ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
+        let tailwindReplacement = build ? '<link href="' + assetURL + '/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4?plugins=forms,typography,aspect-ratio,line-clamp"></script>';
         if(!build){
             // let moduleExportsContent = this.getModuleExportsContent();
             
@@ -583,7 +583,5 @@ module.exports = {
         }
 
         return jsonData;
-    }
-    
-        
+    } 
 }

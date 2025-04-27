@@ -79,7 +79,7 @@ function processFile(filePath) {
 
 function parseShortCodes(content){
     // {tailwindcss} shortcode
-    const tailwindReplacement = isBuild ? '<link href="/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.tailwindcss.com"></script>';
+    const tailwindReplacement = isBuild ? '<link href="/assets/css/main.css" rel="stylesheet">' : '<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>';
     content = content.replace('{tailwindcss}', tailwindReplacement);
     
     return content;
