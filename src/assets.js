@@ -10,7 +10,7 @@ module.exports = {
         if(build){
             esBuildFlag = "--minify";
         }
-        exec("npx esbuild ./assets/js/main.js --bundle --outfile=" + buildDir + "/assets/js/main.js " + esBuildFlag, (err, stdout, stderr) => {
+        exec("npx esbuild ./src/assets/js/main.js --bundle --outfile=" + buildDir + "/assets/js/main.js " + esBuildFlag, (err, stdout, stderr) => {
             if (err) {
             console.error("Error compling main.js:");
             console.error(err);
@@ -20,13 +20,13 @@ module.exports = {
     },
     moveImages(buildDir = '_site'){
 
-        let imagesFolder = 'assets/images'
+        let imagesFolder = 'src/assets/images'
         try {
             if (fs.existsSync(imagesFolder)) {
                 this.createFolderIfNotExists(buildDir + "/assets/");
                 this.createFolderIfNotExists(buildDir + "/assets/images");
 
-                let src=path.join(currentDirectory, '/assets/images'); 
+                let src=path.join(currentDirectory, '/src/assets/images'); 
                 let dest=path.join(currentDirectory, '_site/assets/images'); 
                 if(buildDir != '_site'){
                     dest = buildDir + '/assets/images';
@@ -52,7 +52,7 @@ module.exports = {
     buildTailwindCSS(buildDir = './_site'){
         // console.log(exec("npx tailwindcss version"));
         // console.log(buildDir);
-        exec("npx @tailwindcss/cli -i ./assets/css/main.css -o " + buildDir + "/assets/css/main.css --minify", (err, stdout, stderr) => {
+        exec("npx @tailwindcss/cli -i ./src/assets/css/main.css -o " + buildDir + "/assets/css/main.css --minify", (err, stdout, stderr) => {
         //exec("npx tailwindcss -i ./assets/css/main.css -o " + buildDir + "/assets/css/main.css --minify", (err, stdout, stderr) => {
             if (err) {
             console.error("Error compling tailwindcss:");

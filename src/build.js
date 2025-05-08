@@ -22,8 +22,8 @@ module.exports = {
             }
         }
 
-        const pagesDir = path.join(currentDirectory, './pages');
-        const contentPagesDir = path.join(currentDirectory, './content');
+        const pagesDir = path.join(currentDirectory, './src/views/pages');
+        const contentPagesDir = path.join(currentDirectory, './src/data/content');
         let buildDir = path.join(currentDirectory, './_site');
 
         if (staticJSON.hasOwnProperty('build')) {

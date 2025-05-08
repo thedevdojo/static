@@ -22,7 +22,7 @@ module.exports = {
                 throw new Error('Layout Tag must include a src');
             }
 
-            let layoutPath = path.join(currentDirectory, '/layouts/', layoutAttributes.src);
+            let layoutPath = path.join(currentDirectory, '/src/views/layouts/', layoutAttributes.src);
             let layout = fs.readFileSync(layoutPath, 'utf8');
 
             // parse any includes that are inside the layout template
@@ -127,13 +127,13 @@ module.exports = {
         const markdownDir = path.dirname(markdownFilePath);
         const markdownFileName = path.basename(markdownFilePath, '.md');
         const htmlFilePath = path.join(markdownDir, `${markdownFileName}.html`);
-        const pageHTMLFilePath = htmlFilePath.replace(path.join(currentDirectory, '/content'), path.join(currentDirectory, '/pages'));
+        const pageHTMLFilePath = htmlFilePath.replace(path.join(currentDirectory, '/src/data/content'), path.join(currentDirectory, '/src/views/pages'));
 
         if (fs.existsSync(pageHTMLFilePath)) {
             return pageHTMLFilePath;
         }
 
-        let currentDir = markdownDir.replace(path.join(currentDirectory, '/content'), path.join(currentDirectory, '/pages'));
+        let currentDir = markdownDir.replace(path.join(currentDirectory, '/src/data/content'), path.join(currentDirectory, '/src/views/pages'));
         let htmlFileName = `${markdownFileName}.html`;
         let inc = 0;
         while (currentDir !== '' && inc < 10) {
@@ -169,7 +169,7 @@ module.exports = {
 
         if (match) {
           const src = match[1];
-          const filePath = path.join(currentDirectory, './pages/', src);
+          const filePath = path.join(currentDirectory, './src/views/pages/', src);
           const fileContent = fs.readFileSync(filePath, 'utf8');
           page = fileContent;
         }
@@ -261,7 +261,7 @@ module.exports = {
     parseIncludeContent(htmlString){
 
         // while ((includeTag = includeRegex.exec(htmlString)) !== null) {
-        //     const includeSrcPath = path.join(currentDirectory, '/includes/', includeTag[1]);
+        //     const includeSrcPath = path.join(currentDirectory, '/src/views/includes/', includeTag[1]);
         //     const includeContent = fs.readFileSync(includeSrcPath, 'utf8');
         
         //     // Loop through the attributes of the include tag
@@ -288,7 +288,7 @@ module.exports = {
         
         while ((includeTag = includeRegex.exec(htmlString)) !== null) {
             
-            const includeSrcPath = path.join(currentDirectory, '/includes/', includeTag[1]);
+            const includeSrcPath = path.join(currentDirectory, '/src/views/includes/', includeTag[1]);
             
             let includeContent = fs.readFileSync(includeSrcPath, 'utf8');
 
@@ -322,10 +322,12 @@ module.exports = {
             // tailwindReplacement += '<script>tailwind.config = ' + moduleExportsContent.replace(/;*$/, '') + '</script>';
 
             // If it is not build we also want to grab the contents inside the main.css file and add it to the head
-            let cssContent = fs.readFileSync(currentDirectory + '/assets/css/main.css', 'utf8');
+            let cssContent = fs.readFileSync(currentDirectory + '/src/assets/css/main.css', 'utf8');
             // We also want to replace the tailwindcss @tailwind commands:
-            cssContent = cssContent.replace('@tailwind base;', '').replace('@tailwind components;', '').replace('@tailwind utilities;', '');
-            tailwindReplacement += `<style>${cssContent}</style>`;
+            //cssContent = cssContent.replace('@tailwind base;', '').replace('@tailwind components;', '').replace('@tailwind utilities;', '');
+            // cssContent += `@custom-variant dark (&:where(.dark, .dark *));`;
+            cssContent = cssContent.replace('@import "tailwindcss";', '');
+            tailwindReplacement += `<style type="text/tailwindcss">${cssContent}</style>`;
         }
         content = content.replace('{tailwindcss}', tailwindReplacement);
 
@@ -343,7 +345,7 @@ module.exports = {
         const forEachContentTags = this.forEachContentTags(body);
         for(i=0; i < forEachContentTags.length; i++){
             const attributesAndValues = this.forEachAttributesAndValues(forEachContentTags[i]);
-            const contentCollection = this.frontmatterLoops(currentDirectory + '/content/' + attributesAndValues.content);
+            const contentCollection = this.frontmatterLoops(currentDirectory + '/src/data/content/' + attributesAndValues.content);
             this.storeContentCollection(attributesAndValues.content, contentCollection);
         }
         return this.replaceForEachContentWithCollection( body );
@@ -443,7 +445,7 @@ module.exports = {
     },
 
     storeContentCollection(collectionName, collectionData) {
-        const contentCollectionFolderPath = path.join(currentDirectory, '/collections/content');
+        const contentCollectionFolderPath = path.join(currentDirectory, '/src/data/collections/content');
         if (!fs.existsSync(contentCollectionFolderPath)) {
             fs.mkdirSync(contentCollectionFolderPath);
         }
@@ -472,7 +474,7 @@ module.exports = {
             
     
             // Load the corresponding JSON file
-            let jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/collections/', `${attributes.collection}.json`), 'utf8'));
+            let jsonData = JSON.parse(fs.readFileSync(path.join(currentDirectory, '/src/data/collections/', `${attributes.collection}.json`), 'utf8'));
 
             let loopKeyword = attributes.collection.replace(/\//g, '.');
             if (attributes.as) {

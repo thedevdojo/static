@@ -73,6 +73,56 @@ module.exports = {
                     }
                     fs.removeSync(sourceDir);
 
+                    // --- Begin folder structure migration ---
+                    // Move old folders to new structure if they exist
+                    const cwd = process.cwd();
+                    const ensureDir = (dir) => { if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); };
+
+                    // assets -> src/assets
+                    if (fs.existsSync(path.join(cwd, 'assets'))) {
+                        ensureDir(path.join(cwd, 'src'));
+                        fs.moveSync(path.join(cwd, 'assets'), path.join(cwd, 'src/assets'), { overwrite: true });
+                    }
+                    // collection -> src/data/collections
+                    if (fs.existsSync(path.join(cwd, 'collection'))) {
+                        ensureDir(path.join(cwd, 'src/data'));
+                        fs.moveSync(path.join(cwd, 'collection'), path.join(cwd, 'src/data/collections'), { overwrite: true });
+                    }
+                    // collections -> src/data/collections
+                    if (fs.existsSync(path.join(cwd, 'collections'))) {
+                        ensureDir(path.join(cwd, 'src/data'));
+                        fs.moveSync(path.join(cwd, 'collections'), path.join(cwd, 'src/data/collections'), { overwrite: true });
+                    }
+                    // content -> src/data/content
+                    if (fs.existsSync(path.join(cwd, 'content'))) {
+                        ensureDir(path.join(cwd, 'src/data'));
+                        fs.moveSync(path.join(cwd, 'content'), path.join(cwd, 'src/data/content'), { overwrite: true });
+                    }
+                    // includes -> src/views/includes
+                    if (fs.existsSync(path.join(cwd, 'includes'))) {
+                        ensureDir(path.join(cwd, 'src/views'));
+                        fs.moveSync(path.join(cwd, 'includes'), path.join(cwd, 'src/views/includes'), { overwrite: true });
+                    }
+                    // layouts -> src/views/layouts
+                    if (fs.existsSync(path.join(cwd, 'layouts'))) {
+                        ensureDir(path.join(cwd, 'src/views'));
+                        fs.moveSync(path.join(cwd, 'layouts'), path.join(cwd, 'src/views/layouts'), { overwrite: true });
+                    }
+                    // pages -> src/views/pages
+                    if (fs.existsSync(path.join(cwd, 'pages'))) {
+                        ensureDir(path.join(cwd, 'src/views'));
+                        fs.moveSync(path.join(cwd, 'pages'), path.join(cwd, 'src/views/pages'), { overwrite: true });
+                    }
+                    // public files: favicon.ico and robots.txt
+                    ensureDir(path.join(cwd, 'public'));
+                    if (fs.existsSync(path.join(cwd, 'favicon.ico'))) {
+                        fs.moveSync(path.join(cwd, 'favicon.ico'), path.join(cwd, 'public/favicon.ico'), { overwrite: true });
+                    }
+                    if (fs.existsSync(path.join(cwd, 'robots.txt'))) {
+                        fs.moveSync(path.join(cwd, 'robots.txt'), path.join(cwd, 'public/robots.txt'), { overwrite: true });
+                    }
+                    // --- End folder structure migration ---
+
                     console.log('New site available inside ' + folderName + ' folder');
 
                     if (process.env.NODE_ENV === 'test') {

@@ -12,7 +12,14 @@ const parser = require('./parser.js');
 const assets = require('./assets.js');
 const liveReloadDefaultPort = 35729;
 const env = require('./env.js');
-const staticFoldersToWatch = ['assets', 'collections', 'content', 'includes', 'layouts', 'pages', 'public'];
+const staticFoldersToWatch = [
+    'src/assets',
+    'src/data/collections',
+    'src/data/content',
+    'src/views/includes',
+    'src/views/layouts',
+    'src/views/pages',
+    'public'];
 const globalModulesPath = require("global-modules-path");
 
 const esbuild = require('esbuild');
@@ -54,7 +61,6 @@ module.exports = {
                     liveReloadServer.watch(currentDirectory + "/" + staticFoldersToWatch[i] + "/**/*");
                 }
                 
-                liveReloadServer.watch(currentDirectory + "/tailwind.config.js");
                 liveReloadServer.watch(currentDirectory + "/_site/assets");
                 liveReloadServer.server.once("connection", () => {
                     setTimeout(() => {
@@ -73,8 +79,6 @@ module.exports = {
 
                 app.use(connectLiveReload(liveReloadOptions));
 
-                
-
                 app.use('/assets', express.static(path.join(currentDirectory, '_site/assets')))
                 app.use('/', express.static(path.join(currentDirectory, 'public/')))
                 
@@ -85,8 +89,6 @@ module.exports = {
                 app.listen(availablePort, () => {
                     console.log(`Server running at http://localhost:${availablePort}`);
                 });
-
-                
 
             }).catch((error) => {
                 console.log('error finding available port for liveReload');
@@ -99,14 +101,13 @@ module.exports = {
             console.log('error finding available port number');
             console.log(error);
         });
-        
     },
     handleRequest(req, res, url){
         const route = req.path === '/' ? '/index' : req.path;
 
         // First we are going to check if we have a content file in this location
-        let contentPath = path.join(currentDirectory, './content', route + '.md');
-        let contentPathIndex = path.join(currentDirectory, './content', route + '/index.md');
+        let contentPath = path.join(currentDirectory, './src/data/content', route + '.md');
+        let contentPathIndex = path.join(currentDirectory, './src/data/content', route + '/index.md');
         let contentFile = null;
 
         if (fs.existsSync(contentPath)) {
@@ -122,8 +123,8 @@ module.exports = {
 
         // If we made it this far we want to now check if the static html file exists
 
-        let pagePath = path.join(currentDirectory, './pages', route + '.html');
-        let pagePathIndex = path.join(currentDirectory, './pages', route, '/index.html');
+        let pagePath = path.join(currentDirectory, './src/views/pages', route + '.html');
+        let pagePathIndex = path.join(currentDirectory, './src/views/pages', route, '/index.html');
         let pageContent = null;
 
         if (fs.existsSync(pagePath)) {
@@ -140,7 +141,7 @@ module.exports = {
 
         // otherwise we need to return the Page Not found error
 
-        let page404 = globalModulesPath.getPath("@devdojo/static") + '/src/pages/404.html';
+        let page404 = globalModulesPath.getPath("@devdojo/static") + '/src/views/pages/404.html';
         if (fs.existsSync(page404)) {
             const page404Content = fs.readFileSync(page404, 'utf8');
             return res.status(404).send(page404Content);
