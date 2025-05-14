@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
+const request = require('supertest');
 const port = 3000;
 const livereload = require('livereload');
 const connectLiveReload = require("connect-livereload");
@@ -21,6 +22,7 @@ const staticFoldersToWatch = [
     'src/views/pages',
     'public'];
 const globalModulesPath = require("global-modules-path");
+const rootDirectory = process.argv[3] || currentDirectory;
 
 const esbuild = require('esbuild');
 
@@ -106,8 +108,8 @@ module.exports = {
         const route = req.path === '/' ? '/index' : req.path;
 
         // First we are going to check if we have a content file in this location
-        let contentPath = path.join(currentDirectory, './src/data/content', route + '.md');
-        let contentPathIndex = path.join(currentDirectory, './src/data/content', route + '/index.md');
+        let contentPath = path.join(rootDirectory, 'src/data/content', route + '.md');
+        let contentPathIndex = path.join(rootDirectory, 'src/data/content', route + '/index.md');
         let contentFile = null;
 
         if (fs.existsSync(contentPath)) {
@@ -123,8 +125,8 @@ module.exports = {
 
         // If we made it this far we want to now check if the static html file exists
 
-        let pagePath = path.join(currentDirectory, './src/views/pages', route + '.html');
-        let pagePathIndex = path.join(currentDirectory, './src/views/pages', route, '/index.html');
+        let pagePath = path.join(rootDirectory, 'src/views/pages', route + '.html');
+        let pagePathIndex = path.join(rootDirectory, 'src/views/pages', route, '/index.html');
         let pageContent = null;
 
         if (fs.existsSync(pagePath)) {
@@ -141,6 +143,8 @@ module.exports = {
 
         // otherwise we need to return the Page Not found error
 
+        console.log(pagePath);
+
         let page404 = globalModulesPath.getPath("@devdojo/static") + '/src/views/pages/404.html';
         if (fs.existsSync(page404)) {
             const page404Content = fs.readFileSync(page404, 'utf8');
@@ -149,6 +153,26 @@ module.exports = {
         res.status(404).send('coo');
         return;
 
+    },
+    createDevBinary(){
+
+        app.get('/*', (req, res) => {
+            return this.handleRequest(req, res);
+        });
+
+        const cliPath = process.argv[2] || '/';
+        console.log(rootDirectory);
+
+        request(app)
+            .get(cliPath)
+            .expect('Content-Type', /html/)           // Expecting text/html
+            .expect(200)                              // Expecting 200 OK
+            .end(function(err, res) {
+                if (err) throw err;
+
+                // Optional: do something with the HTML
+                console.log(res.text);
+            });
     },
     getAvailablePort(port) {
         

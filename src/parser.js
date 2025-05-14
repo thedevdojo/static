@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const currentDirectory = process.cwd();
+const currentDirectory = process.argv[3] || process.cwd();
 let showdown  = require('showdown');
 let toc = require('markdown-toc');
 let fm = require('front-matter');
@@ -169,7 +169,7 @@ module.exports = {
 
         if (match) {
           const src = match[1];
-          const filePath = path.join(currentDirectory, './src/views/pages/', src);
+          const filePath = path.join(currentDirectory, '/src/views/pages/', src);
           const fileContent = fs.readFileSync(filePath, 'utf8');
           page = fileContent;
         }
