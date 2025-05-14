@@ -156,12 +156,16 @@ module.exports = {
     },
     createDevBinary(){
 
+        //app.use(express.static(path.join(__dirname, 'public')));
+        app.use('/assets', express.static(path.join(currentDirectory, '_site/assets/')))
+        app.use('/', express.static(path.join(currentDirectory, 'public/')))
+        //app.use('/assets', express.static(path.join(currentDirectory, '_site/assets')))
+
         app.get('/*', (req, res) => {
             return this.handleRequest(req, res);
         });
 
         const cliPath = process.argv[2] || '/';
-        console.log(rootDirectory);
 
         request(app)
             .get(cliPath)
