@@ -154,30 +154,6 @@ module.exports = {
         return;
 
     },
-    createDevBinary(){
-
-        //app.use(express.static(path.join(__dirname, 'public')));
-        app.use('/assets', express.static(path.join(currentDirectory, '_site/assets/')))
-        app.use('/', express.static(path.join(currentDirectory, 'public/')))
-        //app.use('/assets', express.static(path.join(currentDirectory, '_site/assets')))
-
-        app.get('/*', (req, res) => {
-            return this.handleRequest(req, res);
-        });
-
-        const cliPath = process.argv[2] || '/';
-
-        request(app)
-            .get(cliPath)
-            .expect('Content-Type', /html/)           // Expecting text/html
-            .expect(200)                              // Expecting 200 OK
-            .end(function(err, res) {
-                if (err) throw err;
-
-                // Optional: do something with the HTML
-                console.log(res.text);
-            });
-    },
     getAvailablePort(port) {
         
         return new Promise((resolve, reject) => {
@@ -200,5 +176,47 @@ module.exports = {
     
             server.listen(port);
         });
+    },
+    createDevBinary(){
+
+        //app.use(express.static(path.join(__dirname, 'public')));
+        
+        app.use('/assets', express.static(path.join(rootDirectory, '_site/assets')))
+        app.use('/', express.static(path.join(rootDirectory, 'public/')))
+
+        app.get('/*', (req, res) => {
+            return this.handleRequest(req, res);
+        });
+
+        const reqURL = process.argv[2] || '/';
+
+        // Determine expected content type based on file extension
+        let expectedContentType = /html/;
+        if (reqURL.endsWith('.js')) {
+            expectedContentType = /javascript/;
+        } else if (reqURL.endsWith('.css')) {
+            expectedContentType = /css/;
+        } else if (reqURL.endsWith('.json')) {
+            expectedContentType = /json/;
+        } else if (reqURL.endsWith('.png')) {
+            expectedContentType = /png/;
+        } else if (reqURL.endsWith('.txt')) {
+            expectedContentType = /text/;
+        } else if (reqURL.endsWith('.svg')) {
+            expectedContentType = /svg/;
+        } else if (reqURL.endsWith('.ico')) {
+            expectedContentType = /image/;
+        }
+
+        request(app)
+            .get(reqURL)
+            .expect('Content-Type', expectedContentType)         // Expecting text/html
+            .expect(200)                              // Expecting 200 OK
+            .end(function(err, res) {
+                if (err) throw err;
+
+                // Optional: do something with the HTML
+                console.log(res.text);
+            });
     }
 }

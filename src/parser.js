@@ -327,6 +327,7 @@ module.exports = {
             //cssContent = cssContent.replace('@tailwind base;', '').replace('@tailwind components;', '').replace('@tailwind utilities;', '');
             // cssContent += `@custom-variant dark (&:where(.dark, .dark *));`;
             cssContent = cssContent.replace('@import "tailwindcss";', '');
+            cssContent = cssContent.replace('@plugin "@tailwindcss/typography";', '');
             tailwindReplacement += `<style type="text/tailwindcss">${cssContent}</style>`;
         }
         content = content.replace('{tailwindcss}', tailwindReplacement);

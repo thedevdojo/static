@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently --kill-others \"node index.js\" \"npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --watch\"",
-    "build": "node index.js --build && npx tailwindcss -i ./src/assets/css/main.css -o ./build/assets/css/main.css --minify && npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --minify",
+    "build": "node index.js --build && npx @tailwindcss/cli -i ./src/assets/css/main.css -o ./build/assets/css/main.css --minify && npx esbuild ./src/assets/js/main.js --bundle --outfile=./build/assets/js/main.js --minify",
     "test": "jest"
   },
   "repository": {
@@ -41,6 +41,7 @@
     "superagent": "^8.1.2"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.16",
     "jest": "^29.7.0",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.4",
