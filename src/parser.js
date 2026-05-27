@@ -325,7 +325,7 @@ module.exports = {
             let cssContent = fs.readFileSync(currentDirectory + '/assets/css/main.css', 'utf8');
             // We also want to replace the tailwindcss @tailwind commands:
             cssContent = cssContent.replace('@tailwind base;', '').replace('@tailwind components;', '').replace('@tailwind utilities;', '');
-            tailwindReplacement += `<style>${cssContent}</style>`;
+            tailwindReplacement += `<style type="text/tailwindcss">${cssContent}</style>`;
         }
         content = content.replace('{tailwindcss}', tailwindReplacement);
 
